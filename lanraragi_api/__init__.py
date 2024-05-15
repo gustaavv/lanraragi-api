@@ -1,0 +1,1 @@
+from .lanraragi import LANrargiAPI
