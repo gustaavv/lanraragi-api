@@ -6,11 +6,17 @@ a Python library for [LANraragi](https://github.com/Difegue/LANraragi) API.
 
 All the APIs are from [the official LANraragi document](https://sugoi.gitbook.io/lanraragi/api-documentation/getting-started). 
 
-Besides those basic APIs, I also made some enhancements for better use, e.g. [`lanraragi_api.common.entity.Archive#set_artists(self, artists: list[str])`](./lanraragi_api/common/entity.py)
+Based on those APIs, I also made some enhancements, e.g. [`Archive#set_artists()`](./lanraragi_api/common/entity.py).
 
 # Demo
+Install this package: 
+```shell
+pip install lanraragi_api
+```
 
-See [demo.py](demo.py)
+Use this package:
+
+> See [demo.py](demo.py)
 
 ```python
 from lanraragi_api import LANrargiAPI
