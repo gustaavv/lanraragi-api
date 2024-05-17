@@ -5,6 +5,8 @@ from script_house.utils import JsonUtils
 from lanraragi_api.base.base import BaseAPICall
 from lanraragi_api.base.category import Category
 
+ARCHIVE_TAG_VALUES_SET = "ONLY_VALUES"
+
 
 class Archive(BaseModel):
     arcid: str
@@ -12,12 +14,13 @@ class Archive(BaseModel):
     extension: str
     pagecount: int
     progress: int
-    # k1:v1, k2:v2, v3, v4
+    # k1:v1, k2:v21, k2:v22, v3, v4
+    # allow duplicate keys, only values
     tags: str
     lastreadtime: int
     title: str
 
-    def tags_to_dict(self) -> dict[str, list[str]]:
+    def __tags_to_dict(self) -> dict[str, list[str]]:
         tags = self.tags.split(',')
         ans = {}
         for t in tags:
@@ -32,13 +35,13 @@ class Archive(BaseModel):
                     ans[k] = []
                 ans[k].append(v)
             else:
-                k = "ONLY_VALUES"
+                k = ARCHIVE_TAG_VALUES_SET
                 if k not in ans:
                     ans[k] = []
                 ans[k].append(t)
         return ans
 
-    def dict_to_tags(self, json: dict[str, list[str]]):
+    def __dict_to_tags(self, json: dict[str, list[str]]):
         """
         The function will modify the object
         """
@@ -47,7 +50,7 @@ class Archive(BaseModel):
         for k in json:
             for v in json[k]:
                 modified = True
-                if k == 'ONLY_VALUES':
+                if k == ARCHIVE_TAG_VALUES_SET:
                     tags += f"{v},"
                 else:
                     tags += f"{k}:{v},"
@@ -56,9 +59,9 @@ class Archive(BaseModel):
         self.tags = tags
 
     def set_artists(self, artists: list[str]):
-        json = self.tags_to_dict()
+        json = self.__tags_to_dict()
         json['artist'] = artists
-        self.dict_to_tags(json)
+        self.__dict_to_tags(json)
 
     def has_artists(self) -> bool:
         return "artist" in self.tags
