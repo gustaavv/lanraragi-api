@@ -17,6 +17,7 @@ class SearchAPI(BaseAPICall):
     """
     Perform searches.
     """
+
     def search(self,
                category: str = "",
                filter: str = "",
@@ -75,12 +76,12 @@ class SearchAPI(BaseAPICall):
         list = JsonUtils.to_obj(resp.text)['data']
         return [JsonUtils.to_obj(JsonUtils.to_str(o), Archive) for o in list]
 
-    def discard_search_cache(self) -> bool:
+    def discard_search_cache(self) -> dict:
         """
         Discard the cache containing previous user searches.
-        :return: operation succeed or not
+        :return: operation result
         """
         # TODO: untested
         resp = requests.delete(f"{self.server}/api/search/cache", params={'key': self.key},
                                headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)['success'] == 1
+        return JsonUtils.to_obj(resp.text)

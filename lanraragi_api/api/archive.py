@@ -1,5 +1,5 @@
-from script_house.utils import JsonUtils
 import requests
+from script_house.utils import JsonUtils
 
 from ..common.base import BaseAPICall
 from ..common.entity import Archive, Category
@@ -9,6 +9,7 @@ class ArchiveAPI(BaseAPICall):
     """
     Everything dealing with Archives.
     """
+
     def get_all_archives(self) -> list[Archive]:
         resp = requests.get(f"{self.server}/api/archives", params={'key': self.key},
                             headers=self.build_headers())
@@ -78,17 +79,17 @@ class ArchiveAPI(BaseAPICall):
         # TODO: used not so often
         pass
 
-    def clear_archive_new_flag(self, id: str) -> bool:
+    def clear_archive_new_flag(self, id: str) -> dict:
         """
         Clears the "New!" flag on an archive.
 
         :param id: ID of the Archive to process.
-        :return: succeed or not
+        :return: operation result
         """
         # TODO: untested
         resp = requests.delete(f"{self.server}/api/archives/{id}/isnew", params={'key': self.key},
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)['success'] == 1
+                               headers=self.build_headers())
+        return JsonUtils.to_obj(resp.text)
 
     def update_reading_progression(self):
         # TODO: used not so often
@@ -98,26 +99,26 @@ class ArchiveAPI(BaseAPICall):
         # TODO: used not so often
         pass
 
-    def update_archive_metadata(self, id: str, archive: Archive) -> bool:
+    def update_archive_metadata(self, id: str, archive: Archive) -> dict:
         """
         Update tags and title for the given Archive. Data supplied to the server through
         this method will <b>overwrite</b> the previous data.
         :param archive: the Archive whose tags and title will be updated
         :param id: ID of the Archive to process.
-        :return: whether update succeeds
+        :return: operation result
         """
         resp = requests.put(f"{self.server}/api/archives/{id}/metadata", params={
             'key': self.key,
             'title': archive.title,
             'tags': archive.tags
         }, headers=self.build_headers())
-        return resp.status_code == 200
+        return JsonUtils.to_obj(resp)
 
-    def delete_archive(self, id: str):
+    def delete_archive(self, id: str) -> dict:
         """
         Delete both the archive metadata and the file stored on the server.
         :param id: ID of the Archive to process.
-        :return: succeed or not
+        :return: operation result
         """
         # This function is not implemented on purpose. Just because it is
         # too dangerous.

@@ -16,21 +16,21 @@ class ShinobuAPI(BaseAPICall):
                             headers=self.build_headers())
         return JsonUtils.to_obj(resp.text)
 
-    def stop_shinobu(self) -> bool:
+    def stop_shinobu(self) -> dict:
         """
         Stop the Worker.
-        :return: stopped or not
+        :return: operation result
         """
         # TODO: untested
         resp = requests.post(f"{self.server}/api/shinobu/stop", params={'key': self.key},
                              headers=self.build_headers())
-        return resp.status_code == 200
+        return JsonUtils.to_obj(resp.text)
 
-    def restart_shinobu(self) -> int:
+    def restart_shinobu(self) -> dict:
         """
         (Re)-start the Worker.
-        :return: pid of the new worker
+        :return: operation result
         """
         resp = requests.post(f"{self.server}/api/shinobu/restart", params={'key': self.key},
                              headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)['new_pid']
+        return JsonUtils.to_obj(resp.text)

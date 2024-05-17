@@ -56,26 +56,26 @@ class OtherAPI(BaseAPICall):
     def use_plugin_async(self):
         pass
 
-    def clean_temporary_folder(self) -> bool:
+    def clean_temporary_folder(self) -> dict:
         """
         Cleans the server's temporary folder.
-        :return: whether the operation succeeds or not
+        :return: operation result
         """
         # TODO: untested
         resp = requests.delete(f"{self.server}/api/tempfolder", params={'key': self.key},
                                headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)['success'] == 1
+        return JsonUtils.to_obj(resp.text)
 
     def queue_url_to_download(self):
         pass
 
-    def generate_thumbnails(self, all: bool = False) -> int:
+    def generate_thumbnails(self, all: bool = False) -> dict:
         """
         Queue a Minion job to regenerate missing/all thumbnails on the server.
         :param all: Whether to generate all thumbnails, or only the missing ones.
-        :return: job id
+        :return: operation result
         """
         # TODO: untested
         resp = requests.post(f"{self.server}/api/regen_thumbs", params={'key': self.key, 'force': all},
                              headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)["job"]
+        return JsonUtils.to_obj(resp.text)
