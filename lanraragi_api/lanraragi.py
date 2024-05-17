@@ -1,5 +1,5 @@
-from .api import *
-from .common.base import AUTH
+from lanraragi_api.base import *
+from lanraragi_api.base.base import AUTH
 
 
 class LANrargiAPI:

@@ -1,5 +1,5 @@
 from lanraragi_api import LANrargiAPI
-from lanraragi_api.common.entity import Archive
+from lanraragi_api.base.archive import Archive
 
 apikey = ''
 server = 'http://127.0.0.1:3000'

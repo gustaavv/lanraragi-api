@@ -1,14 +1,24 @@
 import requests
+from pydantic import BaseModel
 from script_house.utils import JsonUtils
 
-from ..common.base import BaseAPICall
-from ..common.entity import Category
+from lanraragi_api.base.base import BaseAPICall
+
+
+class Category(BaseModel):
+    archives: list[str]
+    id: str
+    last_used: str
+    name: str
+    pinned: str
+    search: str
 
 
 class CategoryAPI(BaseAPICall):
     """
     Everything dealing with Categories.
     """
+
     def get_all_categories(self) -> list[Category]:
         """
         Get all the categories saved on the server.

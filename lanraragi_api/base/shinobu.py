@@ -1,12 +1,14 @@
-from ..common.base import BaseAPICall
-from script_house.utils import JsonUtils
 import requests
+from script_house.utils import JsonUtils
+
+from lanraragi_api.base.base import BaseAPICall
 
 
 class ShinobuAPI(BaseAPICall):
     """
     Control the built-in Background Worker.
     """
+
     def get_shinobu_status(self) -> dict:
         """
         Get the current status of the Worker.

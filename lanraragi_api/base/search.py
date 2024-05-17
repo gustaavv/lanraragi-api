@@ -2,8 +2,8 @@ import requests
 from pydantic import BaseModel
 from script_house.utils import JsonUtils
 
-from ..common.base import BaseAPICall
-from ..common.entity import Archive
+from lanraragi_api.base.archive import Archive
+from lanraragi_api.base.base import BaseAPICall
 
 
 class SearchResult(BaseModel):

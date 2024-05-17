@@ -2,7 +2,7 @@ import requests
 from pydantic import BaseModel
 from script_house.utils import JsonUtils
 
-from ..common.base import BaseAPICall
+from lanraragi_api.base.base import BaseAPICall
 
 
 class ServerInfo(BaseModel):

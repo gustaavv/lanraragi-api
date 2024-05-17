@@ -4,7 +4,7 @@ import requests
 from pydantic import BaseModel
 from script_house.utils import JsonUtils
 
-from ..common.base import BaseAPICall
+from lanraragi_api.base.base import BaseAPICall
 
 
 class BasicJobStatus(BaseModel):
@@ -49,7 +49,7 @@ class MinionAPI(BaseAPICall):
         :param job_id: ID of the Job.
         :return:
         """
-        resp = requests.get(f"{self.server}/api/minion/{job_id}", params={'key': self.key},
+        resp = requests.get(f"{self.server}/base/minion/{job_id}", params={'key': self.key},
                             headers=self.build_headers())
         return JsonUtils.to_obj(resp.text, BasicJobStatus)
 
@@ -61,6 +61,6 @@ class MinionAPI(BaseAPICall):
         :param job_id: ID of the Job.
         :return:
         """
-        resp = requests.get(f"{self.server}/api/minion/{job_id}/detail", params={'key': self.key},
+        resp = requests.get(f"{self.server}/base/minion/{job_id}/detail", params={'key': self.key},
                             headers=self.build_headers())
         return JsonUtils.to_obj(resp.text, DetailedJobStatus)
