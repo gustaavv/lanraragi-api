@@ -2,6 +2,7 @@ import requests
 from pydantic import BaseModel
 from script_house.utils import JsonUtils
 
+from lanraragi_api.Config import assert_use_untested_functions
 from lanraragi_api.base.base import BaseAPICall
 from lanraragi_api.base.category import Category
 
@@ -149,6 +150,7 @@ class ArchiveAPI(BaseAPICall):
         :return: operation result
         """
         # TODO: untested
+        assert_use_untested_functions()
         resp = requests.delete(f"{self.server}/api/archives/{id}/isnew", params={'key': self.key},
                                headers=self.build_headers())
         return JsonUtils.to_obj(resp.text)

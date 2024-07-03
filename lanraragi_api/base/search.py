@@ -2,6 +2,7 @@ import requests
 from pydantic import BaseModel
 from script_house.utils import JsonUtils
 
+from lanraragi_api.Config import assert_use_untested_functions
 from lanraragi_api.base.archive import Archive
 from lanraragi_api.base.base import BaseAPICall
 
@@ -82,6 +83,7 @@ class SearchAPI(BaseAPICall):
         :return: operation result
         """
         # TODO: untested
+        assert_use_untested_functions()
         resp = requests.delete(f"{self.server}/api/search/cache", params={'key': self.key},
                                headers=self.build_headers())
         return JsonUtils.to_obj(resp.text)

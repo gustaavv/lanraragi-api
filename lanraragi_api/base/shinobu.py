@@ -1,6 +1,7 @@
 import requests
 from script_house.utils import JsonUtils
 
+from lanraragi_api.Config import assert_use_untested_functions
 from lanraragi_api.base.base import BaseAPICall
 
 
@@ -24,6 +25,7 @@ class ShinobuAPI(BaseAPICall):
         :return: operation result
         """
         # TODO: untested
+        assert_use_untested_functions()
         resp = requests.post(f"{self.server}/api/shinobu/stop", params={'key': self.key},
                              headers=self.build_headers())
         return JsonUtils.to_obj(resp.text)

@@ -2,6 +2,7 @@ import requests
 from pydantic import BaseModel
 from script_house.utils import JsonUtils
 
+from lanraragi_api.Config import assert_use_untested_functions
 from lanraragi_api.base.base import BaseAPICall
 
 
@@ -62,6 +63,7 @@ class OtherAPI(BaseAPICall):
         :return: operation result
         """
         # TODO: untested
+        assert_use_untested_functions()
         resp = requests.delete(f"{self.server}/api/tempfolder", params={'key': self.key},
                                headers=self.build_headers())
         return JsonUtils.to_obj(resp.text)
@@ -76,6 +78,7 @@ class OtherAPI(BaseAPICall):
         :return: operation result
         """
         # TODO: untested
+        assert_use_untested_functions()
         resp = requests.post(f"{self.server}/api/regen_thumbs", params={'key': self.key, 'force': all},
                              headers=self.build_headers())
         return JsonUtils.to_obj(resp.text)
