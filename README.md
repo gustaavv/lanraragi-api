@@ -4,12 +4,17 @@ a Python library for [LANraragi](https://github.com/Difegue/LANraragi) API.
 
 > Many thanks to the author of this wonderful manga server app.
 
-All the APIs are from [the official LANraragi document](https://sugoi.gitbook.io/lanraragi/api-documentation/getting-started). 
+All the APIs in the `lanraragi_api.base` package are
+from [the official LANraragi document](https://sugoi.gitbook.io/lanraragi/api-documentation/getting-started).
 
-Based on those APIs, I also made some enhancements, e.g. [`Archive#set_artists()`](./lanraragi_api/common/entity.py).
+- Based on those APIs, I also made some enhancements, e.g. [`Archive#set_artists()`](./lanraragi_api/common/entity.py).
+
+Code in the `lanraragi_api.enhanced` package are mainly scripts that built on the existing APIs.
 
 # Demo
-Install this package: 
+
+Install this package:
+
 ```shell
 pip install lanraragi_api
 ```
@@ -31,6 +36,7 @@ print(archives[0])
 ```
 
 # Build
+
 ```shell
 python.exe .\setup.py bdist_wheel sdist
 ```
