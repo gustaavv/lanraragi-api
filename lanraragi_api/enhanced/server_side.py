@@ -1,5 +1,6 @@
 # the same to server side's code
 import hashlib
+import re
 
 from script_house.utils.FileSystemUtils import assert_is_file
 
@@ -27,3 +28,14 @@ def compute_id(file_path: str) -> str:
     digest = sha1.hexdigest()
 
     return digest
+
+
+def is_archive(file_name):
+    """
+
+    see LANraragi/lib/LANraragi/Utils/Generic.pm
+    :param file_name:
+    :return:
+    """
+    return re.match(r'^.+\.(zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub)$', file_name,
+                    re.IGNORECASE) is not None
