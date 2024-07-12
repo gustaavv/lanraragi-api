@@ -23,6 +23,8 @@ The release version (tags) of lanraragi-api is almost the same to [that of LANra
 
 e.g. The tag for LANraragi is `0.9.0`, then the corresponding tag for lanraragi-api is `v.0.9.0.api0`. `api0` means the first release for that version of LANraragi. The number after `api` is just an auto increment one.
 
+For python package releases, `v.0.9.0.api0` will be `0.9.0.0`.
+
 # Demo
 
 Install this package:
