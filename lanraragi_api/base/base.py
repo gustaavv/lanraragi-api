@@ -17,7 +17,9 @@ class BaseAPICall:
             self.server = self.server[:-1]
         self.default_headers = default_headers
 
-    def build_headers(self, headers: dict[str, str] = {}):
+    def build_headers(self, headers=None):
+        if headers is None:
+            headers = {}
         for k in self.default_headers:
             if k in headers:
                 continue
