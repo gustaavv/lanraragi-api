@@ -53,10 +53,25 @@ class CategoryAPI(BaseAPICall):
         pass
 
     def delete_category(self, id: str):
-        pass
+        """
+        Remove a Category.
+        :param id: Category ID
+        :return: operation result
+        """
+        resp = requests.delete(f"{self.server}/api/categories/{id}",
+                               params={'key': self.key}, headers=self.build_headers())
+        return JsonUtils.to_obj(resp.text)
 
     def add_archive_to_category(self, category_id: str, archive_id: str):
         pass
 
     def remove_archive_from_category(self, category_id: str, archive_id: str):
-        pass
+        """
+        Remove an Archive ID from a Category.
+        :param category_id: Category ID
+        :param archive_id: Archive ID
+        :return: operation result
+        """
+        resp = requests.delete(f"{self.server}/api/categories/{category_id}/{archive_id}",
+                               params={'key': self.key}, headers=self.build_headers())
+        return JsonUtils.to_obj(resp.text)
