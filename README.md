@@ -17,6 +17,12 @@ Code in the `lanraragi_api.enhanced` package are mainly scripts that built on th
   - `remove_all_categories`: For every category, remove all the archives it contains. After that, all the
     categories are removed.
 
+
+# Releases
+The release version (tags) of lanraragi-api is almost the same to [that of LANraragi](https://github.com/Difegue/LANraragi/tags), except that there will be a suffix `.apiXYZ`.
+
+e.g. The tag for LANraragi is `0.9.0`, then the corresponding tag for lanraragi-api is `v.0.9.0.api0`. `api0` means the first release for that version of LANraragi. The number after `api` is just an auto increment one.
+
 # Demo
 
 Install this package:
