@@ -64,6 +64,12 @@ class Archive(BaseModel):
         json['artist'] = artists
         self.__dict_to_tags(json)
 
+    def remove_artists(self):
+        # TODO: untested
+        json = self.__tags_to_dict()
+        json['artist'] = []
+        self.__dict_to_tags(json)
+
     def has_artists(self) -> bool:
         return "artist" in self.tags
 
@@ -176,7 +182,7 @@ class ArchiveAPI(BaseAPICall):
             'title': archive.title,
             'tags': archive.tags
         }, headers=self.build_headers())
-        return JsonUtils.to_obj(resp)
+        return JsonUtils.to_obj(resp.text)
 
     def delete_archive(self, id: str) -> dict:
         """

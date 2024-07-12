@@ -4,7 +4,6 @@ from os.path import join
 import unicodedata
 
 from lanraragi_api import LANrargiAPI
-from lanraragi_api.Config import assert_use_untested_functions
 from lanraragi_api.base.archive import Archive
 from lanraragi_api.enhanced.server_side import is_archive, compute_id
 
@@ -53,8 +52,23 @@ def subfolders_to_artists(api: LANrargiAPI, dirname: str):
                 continue
             _, subfolder = os.path.split(root)
             update_count += 1
-            assert_use_untested_functions()
-            continue  # TODO: untested
             a.set_artists([subfolder])
-            api.archive.update_archive_metadata(a)
+            api.archive.update_archive_metadata(a.arcid, a)
     print(f'archives skipped count: {skip_count} , updated count:  {update_count}')
+
+
+def remove_all_categories(api: LANrargiAPI):
+    """
+    For every category, remove all the archives it contains. After that, all the
+    categories are removed.
+    :param api:
+    :return:
+    """
+    cs = api.category.get_all_categories()
+    for c in cs:
+        for aid in c.archives:
+            result = api.category.remove_archive_from_category(c.id, aid)
+        print(f'remove {len(c.archives)} from category {c.id}:{c.name}')
+    for c in cs:
+        result = api.category.delete_category(c.id)
+    print(f'remove {len(cs)} categories')

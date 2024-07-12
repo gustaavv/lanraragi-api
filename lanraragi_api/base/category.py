@@ -52,7 +52,7 @@ class CategoryAPI(BaseAPICall):
     def update_category(self, id: str, name: str = None, search: str = None, pinned: bool = None):
         pass
 
-    def delete_category(self, id: str):
+    def delete_category(self, id: str) -> dict:
         """
         Remove a Category.
         :param id: Category ID
@@ -65,7 +65,7 @@ class CategoryAPI(BaseAPICall):
     def add_archive_to_category(self, category_id: str, archive_id: str):
         pass
 
-    def remove_archive_from_category(self, category_id: str, archive_id: str):
+    def remove_archive_from_category(self, category_id: str, archive_id: str) -> dict:
         """
         Remove an Archive ID from a Category.
         :param category_id: Category ID
