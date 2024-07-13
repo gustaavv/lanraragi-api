@@ -59,13 +59,15 @@ class Archive(BaseModel):
             tags = tags[:-1]
         self.tags = tags
 
+    def get_artists(self) -> list[str]:
+        return self.__tags_to_dict()['artist']
+
     def set_artists(self, artists: list[str]):
         json = self.__tags_to_dict()
         json['artist'] = artists
         self.__dict_to_tags(json)
 
     def remove_artists(self):
-        # TODO: untested
         json = self.__tags_to_dict()
         json['artist'] = []
         self.__dict_to_tags(json)
