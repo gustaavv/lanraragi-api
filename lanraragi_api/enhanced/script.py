@@ -3,12 +3,12 @@ from os.path import join
 
 import unicodedata
 
-from lanraragi_api import LANrargiAPI
+from lanraragi_api import LANraragiAPI
 from lanraragi_api.base.archive import Archive
 from lanraragi_api.enhanced.server_side import is_archive, compute_id
 
 
-def subfolders_to_artists(api: LANrargiAPI, dirname: str):
+def subfolders_to_artists(api: LANraragiAPI, dirname: str):
     """
     Walk through dirname, and set artist tag for those archives without artist tag.
     For every archive, the artist will be the name of its parent folder.
@@ -57,7 +57,7 @@ def subfolders_to_artists(api: LANrargiAPI, dirname: str):
     print(f'archives skipped count: {skip_count} , updated count:  {update_count}')
 
 
-def remove_all_categories(api: LANrargiAPI):
+def remove_all_categories(api: LANraragiAPI):
     """
     For every category, remove all the archives it contains. After that, all the
     categories are removed.

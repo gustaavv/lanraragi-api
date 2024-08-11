@@ -1,1 +1,1 @@
-from lanraragi_api.lanraragi import LANrargiAPI
+from lanraragi_api.lanraragi import LANraragiAPI

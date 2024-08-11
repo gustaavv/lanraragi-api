@@ -2,7 +2,7 @@ from lanraragi_api.base import *
 from lanraragi_api.base.base import AUTH
 
 
-class LANrargiAPI:
+class LANraragiAPI:
     def __init__(self, key: str, server: str, auth_way: AUTH = AUTH.QUERY_PARAM, default_headers=None):
         if default_headers is None:
             default_headers = {}
