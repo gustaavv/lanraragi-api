@@ -9,7 +9,7 @@ with open('requirements.txt', 'r', encoding='utf-8') as f:
 
 setup(
     name="lanraragi_api",
-    version="0.9.0.1",
+    version="0.9.0.2",
     description="a Python library for LANraragi API",
     packages=find_packages(),
     url="https://github.com/gustaavv/lanraragi-api",
