@@ -2,10 +2,6 @@ name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release tag (must match setup.py version)'
-        required: true
 
 jobs:
   build-and-publish:
@@ -13,20 +9,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.tag }}
 
-      - name: Extract version from setup.py
-        id: version
+      - name: Validate version number
         run: |
-          VERSION=$(grep -oP "(?<=version=['\"])[^'\"]+(?=['\"])" setup.py | head -1)
-          echo "Extracted version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Validate tag match
-        run: |
-          if [ "${{ github.event.inputs.tag }}" != "${{ steps.version.outputs.version }}" ]; then
-            echo "::error::Tag mismatch! Input tag: ${{ github.event.inputs.tag }}, setup.py version: ${{ steps.version.outputs.version }}"
+          PY_VERSION=$(grep -oP "(?<=version=['\"])[^'\"]+(?=['\"])" setup.py | head -1)
+          TAG=${GITHUB_REF#refs/*/}
+          
+          if [ "$PY_VERSION" != "$TAG" ]; then
+            echo "::error::Tag mismatch! Run tag: $TAG, setup.py version: $PY_VERSION"
             exit 1
           fi
 
