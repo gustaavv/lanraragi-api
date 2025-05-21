@@ -19,6 +19,8 @@ jobs:
             echo "::error::Tag mismatch! Run tag: $TAG, setup.py version: $PY_VERSION"
             exit 1
           fi
+          
+          echo "Validation succeeds, version number = $TAG"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -33,8 +35,8 @@ jobs:
       - name: Build package
         run: python setup.py bdist_wheel sdist
 
-#      - name: Publish to PyPI
-#        env:
-#          TWINE_USERNAME: __token__
-#          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-#        run: twine upload dist/*
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: twine upload dist/*
