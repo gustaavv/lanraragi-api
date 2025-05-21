@@ -8,24 +8,27 @@ from lanraragi_api.base.base import BaseAPICall
 
 
 class BasicJobStatus(BaseModel):
-    state: Optional[str] = None
-    task: Optional[str] = None
-    error: Optional[str] = None
+    state: str
+    task: str
+    error: Optional[str]
+    notes: Optional[dict[str, str]]
 
 
-class DetailedJobStatus(BaseModel):
+class FullJobStatus(BaseModel):
     args: list[str] = []
     attempts: str
     children: list[Any] = []
     created: str
     delayed: str
+    expires: Optional[str] = None
     finished: str
     id: str
+    lax: int = 0
     notes: dict[Any, Any] = {}
     parents: list[Any] = []
     priority: str
     queue: str
-    result: dict[Any, Any] = {}
+    result: Optional[dict[Any, Any]]
     retried: Optional[Any]
     retries: str
     started: str
@@ -37,30 +40,34 @@ class DetailedJobStatus(BaseModel):
 class MinionAPI(BaseAPICall):
     """
     Control the built-in Minion Job Queue.
-
-    Minion jobs are ran for various occasions like thumbnails, cache
-    warmup and handling incoming files.
     """
 
     def get_basic_status(self, job_id: str) -> BasicJobStatus:
         """
         For a given Minion job ID, check whether it succeeded or failed.
 
+        Minion jobs are ran for various occasions like thumbnails, cache warmup
+        and handling incoming files.
+
+        For some jobs, you can check the notes field for progress information.
+        Look at https://docs.mojolicious.org/Minion/Guide#Job-progress for
+        more information.
+
         :param job_id: ID of the Job.
-        :return:
+        :return: BasicJobStatus
         """
-        resp = requests.get(f"{self.server}/base/minion/{job_id}", params={'key': self.key},
+        resp = requests.get(f"{self.server}/api/minion/{job_id}", params=self.build_params(),
                             headers=self.build_headers())
         return JsonUtils.to_obj(resp.text, BasicJobStatus)
 
-    def get_full_status(self, job_id: str) -> DetailedJobStatus:
+    def get_full_status(self, job_id: str) -> FullJobStatus:
         """
         Get the status of a Minion Job. This API is there for internal usage
         mostly, but you can use it to get detailed status for jobs like plugin
         runs or URL downloads.
         :param job_id: ID of the Job.
-        :return:
+        :return: FullJobStatus
         """
-        resp = requests.get(f"{self.server}/base/minion/{job_id}/detail", params={'key': self.key},
+        resp = requests.get(f"{self.server}/api/minion/{job_id}/detail", params=self.build_params(),
                             headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text, DetailedJobStatus)
+        return JsonUtils.to_obj(resp.text, FullJobStatus)

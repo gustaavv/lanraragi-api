@@ -1,7 +1,6 @@
 import requests
 from script_house.utils import JsonUtils
 
-from lanraragi_api.Config import assert_use_untested_functions
 from lanraragi_api.base.base import BaseAPICall
 
 
@@ -13,9 +12,9 @@ class ShinobuAPI(BaseAPICall):
     def get_shinobu_status(self) -> dict:
         """
         Get the current status of the Worker.
-        :return: json
+        :return: operation result
         """
-        resp = requests.get(f"{self.server}/api/shinobu", params={'key': self.key},
+        resp = requests.get(f"{self.server}/api/shinobu", params=self.build_params(),
                             headers=self.build_headers())
         return JsonUtils.to_obj(resp.text)
 
@@ -24,9 +23,7 @@ class ShinobuAPI(BaseAPICall):
         Stop the Worker.
         :return: operation result
         """
-        # TODO: untested
-        assert_use_untested_functions()
-        resp = requests.post(f"{self.server}/api/shinobu/stop", params={'key': self.key},
+        resp = requests.post(f"{self.server}/api/shinobu/stop", params=self.build_params(),
                              headers=self.build_headers())
         return JsonUtils.to_obj(resp.text)
 
@@ -35,6 +32,6 @@ class ShinobuAPI(BaseAPICall):
         (Re)-start the Worker.
         :return: operation result
         """
-        resp = requests.post(f"{self.server}/api/shinobu/restart", params={'key': self.key},
+        resp = requests.post(f"{self.server}/api/shinobu/restart", params=self.build_params(),
                              headers=self.build_headers())
         return JsonUtils.to_obj(resp.text)
