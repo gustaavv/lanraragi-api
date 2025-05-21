@@ -37,10 +37,10 @@ print(archives[0])
 All the APIs in the `lanraragi_api.base` package are
 from [the official LANraragi document](https://sugoi.gitbook.io/lanraragi/api-documentation/getting-started), which you will be using in most times.
 
-Functions in the `lanraragi_api.enhanced` package are mainly scripts that built on the existing APIs.
+Functions in the `lanraragi_api.enhanced` package are built on the base APIs, offering useful functionalities.
 
-- [server_side.py](lanraragi_api%2Fenhanced%2Fserver_side.py) contains useful function implemented in the server's code. The code is the same, only translated from Perl to Python.
-- [script.py](lanraragi_api%2Fenhanced%2Fscript.py) contains useful scripts for operation and management. There are:
+- `server_side.py` contains server-side functions. The code is the same to that of LANraragi, only translated from Perl to Python.
+- `script.py` contains functions for operation and management.
 
 
 
