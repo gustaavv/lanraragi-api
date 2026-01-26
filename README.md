@@ -57,3 +57,7 @@ In order to make it simple, the first three version numbers are always the same,
 
 
 
+## Development
+
+Python version: 3.10
+Code formatter: default setting of [VS Code's Black Formatter extension](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)

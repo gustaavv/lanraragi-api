@@ -1,16 +1,15 @@
 import requests
-from pydantic import BaseModel
-from script_house.utils import JsonUtils
+from pydantic import BaseModel, Field
 
 from lanraragi_api.base.archive import Archive
 from lanraragi_api.base.base import BaseAPICall
 
 
 class SearchResult(BaseModel):
-    data: list[Archive]
-    draw: int
-    recordsFiltered: int
-    recordsTotal: int
+    data: list[Archive] = Field(...)
+    draw: int = Field(...)
+    recordsFiltered: int = Field(...)
+    recordsTotal: int = Field(...)
 
 
 class SearchAPI(BaseAPICall):
@@ -18,16 +17,17 @@ class SearchAPI(BaseAPICall):
     Perform searches.
     """
 
-    def search(self,
-               category: str = None,
-               filter: str = None,
-               start: str = None,
-               sort_by: str = 'title',
-               order: str = 'asc',
-               new_only: bool = False,
-               untagged_only: bool = False,
-               groupby_tanks: bool = True,
-               ) -> SearchResult:
+    def search(
+        self,
+        category: str = None,
+        filter: str = None,
+        start: str = None,
+        sort_by: str = "title",
+        order: str = "asc",
+        new_only: bool = False,
+        untagged_only: bool = False,
+        groupby_tanks: bool = True,
+    ) -> SearchResult:
         """
         Search for Archives. You can use the IDs of this JSON with the other
         endpoints.
@@ -53,27 +53,33 @@ class SearchAPI(BaseAPICall):
         :return: SearchResult
         """
 
-        resp = requests.get(f"{self.server}/api/search",
-                            params=self.build_params({'category': category,
-                                                      'filter': filter,
-                                                      'start': start,
-                                                      'sortby': sort_by,
-                                                      'order': order,
-                                                      'newonly': new_only if new_only else None,
-                                                      'untaggedonly': untagged_only if untagged_only else None,
-                                                      'groupby_tanks': groupby_tanks if groupby_tanks else None,
-                                                      }),
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text, SearchResult)
+        resp = requests.get(
+            f"{self.server}/api/search",
+            params=self.build_params(
+                {
+                    "category": category,
+                    "filter": filter,
+                    "start": start,
+                    "sortby": sort_by,
+                    "order": order,
+                    "newonly": new_only if new_only else None,
+                    "untaggedonly": untagged_only if untagged_only else None,
+                    "groupby_tanks": groupby_tanks if groupby_tanks else None,
+                }
+            ),
+            headers=self.build_headers(),
+        )
+        return SearchResult(**resp.json())
 
-    def get_random_archives(self,
-                            category: str = None,
-                            filter: str = None,
-                            count: int = 5,
-                            new_only: bool = False,
-                            untagged_only: bool = False,
-                            groupby_tanks: bool = True,
-                            ) -> list[Archive]:
+    def get_random_archives(
+        self,
+        category: str = None,
+        filter: str = None,
+        count: int = 5,
+        new_only: bool = False,
+        untagged_only: bool = False,
+        groupby_tanks: bool = True,
+    ) -> list[Archive]:
         """
         Get randomly selected Archives from the given filter and/or category.
         :param category: ID of the category you want to restrict this search to.
@@ -89,23 +95,31 @@ class SearchAPI(BaseAPICall):
         :return: randomly selected Archives
         """
 
-        resp = requests.get(f"{self.server}/api/search/random",
-                            params=self.build_params({'category': category,
-                                                      'filter': filter,
-                                                      'count': count,
-                                                      'newonly': new_only if new_only else None,
-                                                      'untaggedonly': untagged_only if untagged_only else None,
-                                                      'groupby_tanks': groupby_tanks if groupby_tanks else None,
-                                                      }),
-                            headers=self.build_headers())
-        list = JsonUtils.to_obj(resp.text)['data']
-        return [JsonUtils.to_obj(JsonUtils.to_str(o), Archive) for o in list]
+        resp = requests.get(
+            f"{self.server}/api/search/random",
+            params=self.build_params(
+                {
+                    "category": category,
+                    "filter": filter,
+                    "count": count,
+                    "newonly": new_only if new_only else None,
+                    "untaggedonly": untagged_only if untagged_only else None,
+                    "groupby_tanks": groupby_tanks if groupby_tanks else None,
+                }
+            ),
+            headers=self.build_headers(),
+        )
+        list = resp.json()["data"]
+        return [Archive(**a) for a in list]
 
     def discard_search_cache(self) -> dict:
         """
         Discard the cache containing previous user searches.
         :return: operation result
         """
-        resp = requests.delete(f"{self.server}/api/search/cache", params=self.build_params(),
-                               headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.delete(
+            f"{self.server}/api/search/cache",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return resp.json()

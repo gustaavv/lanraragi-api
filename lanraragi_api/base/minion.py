@@ -1,40 +1,39 @@
 from typing import Optional, Any
 
 import requests
-from pydantic import BaseModel
-from script_house.utils import JsonUtils
+from pydantic import BaseModel, Field
 
 from lanraragi_api.base.base import BaseAPICall
 
 
 class BasicJobStatus(BaseModel):
-    state: str
-    task: str
-    error: Optional[str]
-    notes: Optional[dict[str, str]]
+    state: str = Field(...)
+    task: str = Field(...)
+    error: Optional[str] = Field(default=None)
+    notes: Optional[dict[str, str]] = Field(default=None)
 
 
 class FullJobStatus(BaseModel):
-    args: list[str] = []
-    attempts: str
-    children: list[Any] = []
-    created: str
-    delayed: str
-    expires: Optional[str] = None
-    finished: str
-    id: str
-    lax: int = 0
-    notes: dict[Any, Any] = {}
-    parents: list[Any] = []
-    priority: str
-    queue: str
-    result: Optional[dict[Any, Any]]
-    retried: Optional[Any]
-    retries: str
-    started: str
-    state: str
-    task: str
-    worker: int
+    args: list[str] = Field(default_factory=list)
+    attempts: str = Field(...)
+    children: list[Any] = Field(default_factory=list)
+    created: str = Field(...)
+    delayed: str = Field(...)
+    expires: Optional[str] = Field(default=None)
+    finished: str = Field(...)
+    id: str = Field(...)
+    lax: int = Field(default=0)
+    notes: dict[Any, Any] = Field(default_factory=dict)
+    parents: list[Any] = Field(default_factory=list)
+    priority: str = Field(...)
+    queue: str = Field(...)
+    result: Optional[dict[Any, Any]] = Field(default=None)
+    retried: Optional[Any] = Field(default=None)
+    retries: str = Field(...)
+    started: str = Field(...)
+    state: str = Field(...)
+    task: str = Field(...)
+    worker: int = Field(...)
 
 
 class MinionAPI(BaseAPICall):
@@ -56,9 +55,12 @@ class MinionAPI(BaseAPICall):
         :param job_id: ID of the Job.
         :return: BasicJobStatus
         """
-        resp = requests.get(f"{self.server}/api/minion/{job_id}", params=self.build_params(),
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text, BasicJobStatus)
+        resp = requests.get(
+            f"{self.server}/api/minion/{job_id}",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return BasicJobStatus(**resp.json())
 
     def get_full_status(self, job_id: str) -> FullJobStatus:
         """
@@ -68,6 +70,9 @@ class MinionAPI(BaseAPICall):
         :param job_id: ID of the Job.
         :return: FullJobStatus
         """
-        resp = requests.get(f"{self.server}/api/minion/{job_id}/detail", params=self.build_params(),
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text, FullJobStatus)
+        resp = requests.get(
+            f"{self.server}/api/minion/{job_id}/detail",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return FullJobStatus(**resp.json())

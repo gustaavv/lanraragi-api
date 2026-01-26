@@ -2,9 +2,8 @@ from os.path import isfile
 from typing import Optional
 
 import requests
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from requests import Response
-from script_house.utils import JsonUtils
 
 from lanraragi_api.base.base import BaseAPICall
 from lanraragi_api.base.category import Category
@@ -13,30 +12,30 @@ ARCHIVE_TAG_VALUES_SET = "ONLY_VALUES"
 
 
 class Archive(BaseModel):
-    arcid: str
-    extension: str
-    filename: str
-    isnew: str
-    lastreadtime: int
-    pagecount: int
-    progress: int
-    size: int
-    summary: str
+    arcid: str = Field(...)
+    extension: str = Field(...)
+    filename: str = Field(...)
+    isnew: str = Field(...)
+    lastreadtime: int = Field(...)
+    pagecount: int = Field(...)
+    progress: int = Field(...)
+    size: int = Field(...)
+    summary: str = Field(...)
 
     # k1:v1, k2:v21, k2:v22, v3, v4
     # allow duplicate keys, only values
-    tags: str
-    title: str
+    tags: str = Field(...)
+    title: str = Field(...)
 
     def __tags_to_dict(self) -> dict[str, list[str]]:
-        tags = self.tags.split(',')
+        tags = self.tags.split(",")
         ans = {}
         for t in tags:
-            if t == '':
+            if t == "":
                 continue
             t = t.strip()
-            if ':' in t:
-                kv = t.split(':')
+            if ":" in t:
+                kv = t.split(":")
                 k = kv[0]
                 v = kv[1]
                 if k not in ans:
@@ -67,16 +66,16 @@ class Archive(BaseModel):
         self.tags = tags
 
     def get_artists(self) -> list[str]:
-        return self.__tags_to_dict()['artist']
+        return self.__tags_to_dict()["artist"]
 
     def set_artists(self, artists: list[str]):
         json = self.__tags_to_dict()
-        json['artist'] = artists
+        json["artist"] = artists
         self.__dict_to_tags(json)
 
     def remove_artists(self):
         json = self.__tags_to_dict()
-        json['artist'] = []
+        json["artist"] = []
         self.__dict_to_tags(json)
 
     def has_artists(self) -> bool:
@@ -94,10 +93,13 @@ class ArchiveAPI(BaseAPICall):
         with the other endpoints.
         :return: list of archives
         """
-        resp = requests.get(f"{self.server}/api/archives", params=self.build_params(),
-                            headers=self.build_headers())
-        list = JsonUtils.to_obj(resp.text)
-        return [JsonUtils.to_obj(JsonUtils.to_str(o), Archive) for o in list]
+        resp = requests.get(
+            f"{self.server}/api/archives",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        list = resp.json()
+        return [Archive(**a) for a in list]
 
     def get_untagged_archives(self) -> list[str]:
         """
@@ -106,9 +108,12 @@ class ArchiveAPI(BaseAPICall):
         parody:, date_added:, series: or artist: tags.
         :return: list of archive IDs
         """
-        resp = requests.get(f"{self.server}/api/archives/untagged", params=self.build_params(),
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.get(
+            f"{self.server}/api/archives/untagged",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def get_archive_metadata(self, id: str) -> Optional[Archive]:
         """
@@ -116,11 +121,14 @@ class ArchiveAPI(BaseAPICall):
         :param id: ID of the Archive to process.
         :return: archive
         """
-        resp = requests.get(f"{self.server}/api/archives/{id}/metadata", params=self.build_params(),
-                            headers=self.build_headers())
+        resp = requests.get(
+            f"{self.server}/api/archives/{id}/metadata",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
         if resp.status_code == 400:
             return None
-        return JsonUtils.to_obj(resp.text, Archive)
+        return Archive(**resp.json())
 
     def get_archive_categories(self, id: str) -> list[Category]:
         """
@@ -128,10 +136,13 @@ class ArchiveAPI(BaseAPICall):
         :param id: ID of the Archive to process.
         :return:
         """
-        resp = requests.get(f"{self.server}/api/archives/{id}/categories", params=self.build_params(),
-                            headers=self.build_headers())
-        clist = JsonUtils.to_obj(resp.text)["categories"]
-        return [JsonUtils.to_obj(JsonUtils.to_str(c), Category) for c in clist]
+        resp = requests.get(
+            f"{self.server}/api/archives/{id}/categories",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        clist = resp.json()["categories"]
+        return [Category(**c) for c in clist]
 
     def get_archive_tankoubons(self, id: str) -> list[str]:
         """
@@ -141,11 +152,16 @@ class ArchiveAPI(BaseAPICall):
         :param id: ID of the Archive to process.
         :return: list of tankoubon ids
         """
-        resp = requests.get(f"{self.server}/api/archives/{id}/tankoubons", params=self.build_params(),
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)['tankoubons']
+        resp = requests.get(
+            f"{self.server}/api/archives/{id}/tankoubons",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return resp.json()["tankoubons"]
 
-    def get_archive_thumbnail(self, id: str, page: int = 1, no_fallback: bool = False) -> Response:
+    def get_archive_thumbnail(
+        self, id: str, page: int = 1, no_fallback: bool = False
+    ) -> Response:
         """
         Get a Thumbnail image for a given Archive. This endpoint will return
         a placeholder image if it doesn't already exist.
@@ -163,12 +179,14 @@ class ArchiveAPI(BaseAPICall):
         image with code 200 no matter what)
         :return: the response object
         """
-        resp = requests.get(f"{self.server}/api/archives/{id}/thumbnail",
-                            params=self.build_params({'page': page, 'no_fallback': no_fallback}),
-                            headers=self.build_headers())
+        resp = requests.get(
+            f"{self.server}/api/archives/{id}/thumbnail",
+            params=self.build_params({"page": page, "no_fallback": no_fallback}),
+            headers=self.build_headers(),
+        )
         return resp
 
-    def queue_extraction_of_page_thumbnails(self, id: str, force: bool = False) -> Response:
+    def queue_extraction_of_page_thumbnails(self, id: str, force: bool = False) -> dict:
         """
         Create thumbnails for every page of a given Archive. This endpoint will
         queue generation of the thumbnails in the background.
@@ -184,10 +202,12 @@ class ArchiveAPI(BaseAPICall):
         they already exist.
         :return: operation result
         """
-        resp = requests.post(f"{self.server}/api/archives/{id}/files/thumbnails",
-                             params=self.build_params({'force': force}),
-                             headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.post(
+            f"{self.server}/api/archives/{id}/files/thumbnails",
+            params=self.build_params({"force": force}),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def download_archive(self, id: str) -> Response:
         """
@@ -196,8 +216,11 @@ class ArchiveAPI(BaseAPICall):
         :param id: ID of the Archive to download.
         :return: the response object
         """
-        resp = requests.get(f"{self.server}/api/archives/{id}/download", params=self.build_params(),
-                            headers=self.build_headers())
+        resp = requests.get(
+            f"{self.server}/api/archives/{id}/download",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
         return resp
 
     def extract_archive(self, id: str, force: bool = False) -> dict:
@@ -212,10 +235,12 @@ class ArchiveAPI(BaseAPICall):
         /api/archives/:id/page calls until the Archive is fully re-extracted.
         :return: operation result
         """
-        resp = requests.get(f"{self.server}/api/archives/{id}/files",
-                            params=self.build_params({'force': force}),
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.get(
+            f"{self.server}/api/archives/{id}/files",
+            params=self.build_params({"force": force}),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def clear_archive_new_flag(self, id: str) -> dict:
         """
@@ -224,9 +249,12 @@ class ArchiveAPI(BaseAPICall):
         :param id: ID of the Archive to process.
         :return: operation result
         """
-        resp = requests.delete(f"{self.server}/api/archives/{id}/isnew", params=self.build_params(),
-                               headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.delete(
+            f"{self.server}/api/archives/{id}/isnew",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def update_reading_progression(self, id: str, page: int) -> dict:
         """
@@ -261,12 +289,22 @@ class ArchiveAPI(BaseAPICall):
         the archive.
         :return: operation result
         """
-        resp = requests.put(f"{self.server}/api/archives/{id}/progress/{page}", params=self.build_params(),
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.put(
+            f"{self.server}/api/archives/{id}/progress/{page}",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
-    def upload_archive(self, archive_path: str, title: str = None, tags: str = None, summary: str = None,
-                       category_id: int = None, file_checksum: str = None) -> dict:
+    def upload_archive(
+        self,
+        archive_path: str,
+        title: str = None,
+        tags: str = None,
+        summary: str = None,
+        category_id: int = None,
+        file_checksum: str = None,
+    ) -> dict:
         """
         Upload an Archive to the server.
 
@@ -284,26 +322,32 @@ class ArchiveAPI(BaseAPICall):
         :return: operation result
         """
         # deal with windows path separator
-        archive_path = archive_path.replace('\\', '/')
+        archive_path = archive_path.replace("\\", "/")
 
         if not isfile(archive_path):
             raise FileNotFoundError(f"File {archive_path} not found")
 
-        resp = requests.put(f"{self.server}/api/archives/upload",
-                            params=self.build_params(),
-                            headers=self.build_headers(),
-                            files={"file": (
-                                archive_path.split("/")[-1], open(archive_path, "rb"), "application/octet-stream"
-                            )},
-                            data={
-                                'title': title,
-                                'tags': tags,
-                                'summary': summary,
-                                'category_id': category_id,
-                                'file_checksum': file_checksum,
-                            })
+        resp = requests.put(
+            f"{self.server}/api/archives/upload",
+            params=self.build_params(),
+            headers=self.build_headers(),
+            files={
+                "file": (
+                    archive_path.split("/")[-1],
+                    open(archive_path, "rb"),
+                    "application/octet-stream",
+                )
+            },
+            data={
+                "title": title,
+                "tags": tags,
+                "summary": summary,
+                "category_id": category_id,
+                "file_checksum": file_checksum,
+            },
+        )
 
-        return JsonUtils.to_obj(resp.text)
+        return resp.json()
 
     def update_thumbnail(self, id: str, page: int = 1) -> dict:
         """
@@ -314,10 +358,12 @@ class ArchiveAPI(BaseAPICall):
         :param page: Page you want to make the thumbnail out of. Defaults to 1.
         :return: operation result
         """
-        resp = requests.put(f"{self.server}/api/archives/{id}/thumbnail",
-                            params=self.build_params({'page': page}),
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.put(
+            f"{self.server}/api/archives/{id}/thumbnail",
+            params=self.build_params({"page": page}),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def update_archive_metadata(self, id: str, archive: Archive) -> dict:
         """
@@ -328,12 +374,12 @@ class ArchiveAPI(BaseAPICall):
         :return: operation result
         """
 
-        resp = requests.put(f"{self.server}/api/archives/{id}/metadata",
-                            params=self.build_params({
-                                'title': archive.title,
-                                'tags': archive.tags
-                            }), headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.put(
+            f"{self.server}/api/archives/{id}/metadata",
+            params=self.build_params({"title": archive.title, "tags": archive.tags}),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def delete_archive(self, id: str) -> dict:
         """
@@ -343,6 +389,9 @@ class ArchiveAPI(BaseAPICall):
         :param id: ID of the Archive to process.
         :return: operation result
         """
-        resp = requests.delete(f"{self.server}/api/archives/{id}", params=self.build_params(),
-                               headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.delete(
+            f"{self.server}/api/archives/{id}",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return resp.json()

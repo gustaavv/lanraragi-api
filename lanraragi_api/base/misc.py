@@ -1,25 +1,24 @@
 import requests
-from pydantic import BaseModel
-from script_house.utils import JsonUtils
+from pydantic import BaseModel, Field
 
 from lanraragi_api.base.base import BaseAPICall
 
 
 class ServerInfo(BaseModel):
-    archives_per_page: int
-    cache_last_cleared: int
-    debug_mode: bool
-    has_password: bool
-    motd: str
-    name: str
-    nofun_mode: bool
-    server_resizes_images: bool
-    server_tracks_progress: bool
-    total_archives: int
-    total_pages_read: int
-    version: str
-    version_desc: str
-    version_name: str
+    archives_per_page: int = Field(...)
+    cache_last_cleared: int = Field(...)
+    debug_mode: bool = Field(...)
+    has_password: bool = Field(...)
+    motd: str = Field(...)
+    name: str = Field(...)
+    nofun_mode: bool = Field(...)
+    server_resizes_images: bool = Field(...)
+    server_tracks_progress: bool = Field(...)
+    total_archives: int = Field(...)
+    total_pages_read: int = Field(...)
+    version: str = Field(...)
+    version_desc: str = Field(...)
+    version_name: str = Field(...)
 
 
 class MiscAPI(BaseAPICall):
@@ -32,9 +31,12 @@ class MiscAPI(BaseAPICall):
         Returns some basic information about the LRR instance this server is running.
         :return:
         """
-        resp = requests.get(f"{self.server}/api/info", params=self.build_params(),
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text, ServerInfo)
+        resp = requests.get(
+            f"{self.server}/api/info",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return ServerInfo(**resp.json())
 
     def get_opds_catalog(self, archive_id: str = None, category_id: str = None) -> str:
         """
@@ -45,9 +47,11 @@ class MiscAPI(BaseAPICall):
         filtered to only show archives from this category.
         :return: XML string
         """
-        resp = requests.get(f"{self.server}/api/opds{f'/{archive_id}' if archive_id else ''}",
-                            params=self.build_params({'category': category_id}),
-                            headers=self.build_headers())
+        resp = requests.get(
+            f"{self.server}/api/opds{f'/{archive_id}' if archive_id else ''}",
+            params=self.build_params({"category": category_id}),
+            headers=self.build_headers(),
+        )
         return resp.text
 
     def get_available_plugins(self, type: str) -> list[dict]:
@@ -58,9 +62,12 @@ class MiscAPI(BaseAPICall):
                  or 'all' to get all previous types at once.
         :return: list of plugins
         """
-        resp = requests.get(f"{self.server}/api/plugins/{type}", params=self.build_params(),
-                            headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.get(
+            f"{self.server}/api/plugins/{type}",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def use_plugin(self, plugin: str, id: str = None, arg: str = None) -> dict:
         """
@@ -77,14 +84,14 @@ class MiscAPI(BaseAPICall):
         Plugin.
         :return: operation result
         """
-        resp = requests.post(f"{self.server}/api/plugins/use",
-                             params=self.build_params({
-                                 'key': self.key,
-                                 'plugin': plugin,
-                                 'id': id,
-                                 'arg': arg}),
-                             headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.post(
+            f"{self.server}/api/plugins/use",
+            params=self.build_params(
+                {"key": self.key, "plugin": plugin, "id": id, "arg": arg}
+            ),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def use_plugin_async(self, plugin: str, id: str = None, arg: str = None) -> dict:
         """
@@ -100,23 +107,26 @@ class MiscAPI(BaseAPICall):
         Plugin.
         :return: operation result
         """
-        resp = requests.post(f"{self.server}/api/plugins/queue",
-                             params=self.build_params({
-                                 'key': self.key,
-                                 'plugin': plugin,
-                                 'id': id,
-                                 'arg': arg}),
-                             headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.post(
+            f"{self.server}/api/plugins/queue",
+            params=self.build_params(
+                {"key": self.key, "plugin": plugin, "id": id, "arg": arg}
+            ),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def clean_temporary_folder(self) -> dict:
         """
         Cleans the server's temporary folder.
         :return: operation result
         """
-        resp = requests.delete(f"{self.server}/api/tempfolder", params=self.build_params(),
-                               headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.delete(
+            f"{self.server}/api/tempfolder",
+            params=self.build_params(),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def queue_url_to_download(self, url: str, category_id: str = None) -> dict:
         """
@@ -125,10 +135,12 @@ class MiscAPI(BaseAPICall):
         :param category_id: Category ID to add the downloaded URL to.
         :return: operation result
         """
-        resp = requests.post(f"{self.server}/api/download_url",
-                             params=self.build_params({'url': url, 'catid': category_id}),
-                             headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.post(
+            f"{self.server}/api/download_url",
+            params=self.build_params({"url": url, "catid": category_id}),
+            headers=self.build_headers(),
+        )
+        return resp.json()
 
     def regenerate_thumbnails(self, force: bool = False) -> dict:
         """
@@ -136,7 +148,9 @@ class MiscAPI(BaseAPICall):
         :param force: Whether to generate all thumbnails, or only the missing ones.
         :return: operation result
         """
-        resp = requests.post(f"{self.server}/api/regen_thumbs",
-                             params=self.build_params({'force': force if force else None}),
-                             headers=self.build_headers())
-        return JsonUtils.to_obj(resp.text)
+        resp = requests.post(
+            f"{self.server}/api/regen_thumbs",
+            params=self.build_params({"force": force if force else None}),
+            headers=self.build_headers(),
+        )
+        return resp.json()

@@ -23,7 +23,7 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
     map: dict[str, list[Archive]] = {}
     # possibly duplicate archive names
     for a in archives:
-        k = unicodedata.normalize('NFC', a.title)
+        k = unicodedata.normalize("NFC", a.title)
         if k not in map:
             map[k] = list()
         map[k].append(a)
@@ -33,8 +33,8 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
         for f in files:
             if not is_archive(f):
                 continue
-            f = unicodedata.normalize('NFC', f)
-            f2 = f[:f.rfind('.')].strip()  # remove file extension
+            f = unicodedata.normalize("NFC", f)
+            f2 = f[: f.rfind(".")].strip()  # remove file extension
             if f2 not in map:
                 continue
             if len(map[f2]) > 1:
@@ -54,7 +54,7 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
             update_count += 1
             a.set_artists([subfolder])
             api.archive.update_archive_metadata(a.arcid, a)
-    print(f'archives skipped count: {skip_count} , updated count:  {update_count}')
+    print(f"archives skipped count: {skip_count} , updated count:  {update_count}")
 
 
 def remove_all_categories(api: LANraragiAPI):
@@ -68,7 +68,7 @@ def remove_all_categories(api: LANraragiAPI):
     for c in cs:
         for aid in c.archives:
             result = api.category.remove_archive_from_category(c.id, aid)
-        print(f'remove {len(c.archives)} from category {c.id}:{c.name}')
+        print(f"remove {len(c.archives)} from category {c.id}:{c.name}")
     for c in cs:
         result = api.category.delete_category(c.id)
-    print(f'remove {len(cs)} categories')
+    print(f"remove {len(cs)} categories")

@@ -1,8 +1,7 @@
 # the same to server side's code
 import hashlib
+import os
 import re
-
-from script_house.utils.FileSystemUtils import assert_is_file
 
 
 def compute_id(file_path: str) -> str:
@@ -14,10 +13,11 @@ def compute_id(file_path: str) -> str:
     :param file_path: the file to the archive
     :return:
     """
-    assert_is_file(file_path)
+    if not os.path.isfile(file_path):
+        raise Exception(f"not a valid file path: {file_path}")
     try:
         # Read the first 512 KB of the file
-        with open(file_path, 'rb') as file:
+        with open(file_path, "rb") as file:
             data = file.read(512000)
     except IOError as e:
         raise Exception(f"Couldn't open {file_path}: {e}")
@@ -37,5 +37,11 @@ def is_archive(file_name):
     :param file_name:
     :return:
     """
-    return re.match(r'^.+\.(zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub)$', file_name,
-                    re.IGNORECASE) is not None
+    return (
+        re.match(
+            r"^.+\.(zip|rar|7z|tar|tar\.gz|lzma|xz|cbz|cbr|cb7|cbt|pdf|epub)$",
+            file_name,
+            re.IGNORECASE,
+        )
+        is not None
+    )
