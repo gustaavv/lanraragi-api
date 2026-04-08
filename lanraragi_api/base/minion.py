@@ -1,9 +1,9 @@
-from typing import Optional, Any
+import json
+from typing import Any, Optional
 
-import requests
 from pydantic import BaseModel, Field
 
-from lanraragi_api.base.base import BaseAPICall
+from lanraragi_api.base.base import BaseAPICall, MinionJobResponse
 
 
 class BasicJobStatus(BaseModel):
@@ -41,7 +41,7 @@ class MinionAPI(BaseAPICall):
     Control the built-in Minion Job Queue.
     """
 
-    def get_basic_status(self, job_id: str) -> BasicJobStatus:
+    def get_basic_status(self, job_id: int | str) -> BasicJobStatus:
         """
         For a given Minion job ID, check whether it succeeded or failed.
 
@@ -55,14 +55,9 @@ class MinionAPI(BaseAPICall):
         :param job_id: ID of the Job.
         :return: BasicJobStatus
         """
-        resp = requests.get(
-            f"{self.server}/api/minion/{job_id}",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return BasicJobStatus(**resp.json())
+        return self.request_model("GET", f"/api/minion/{job_id}", BasicJobStatus)
 
-    def get_full_status(self, job_id: str) -> FullJobStatus:
+    def get_full_status(self, job_id: int | str) -> FullJobStatus:
         """
         Get the status of a Minion Job. This API is there for internal usage
         mostly, but you can use it to get detailed status for jobs like plugin
@@ -70,9 +65,25 @@ class MinionAPI(BaseAPICall):
         :param job_id: ID of the Job.
         :return: FullJobStatus
         """
-        resp = requests.get(
-            f"{self.server}/api/minion/{job_id}/detail",
-            params=self.build_params(),
-            headers=self.build_headers(),
+        return self.request_model("GET", f"/api/minion/{job_id}/detail", FullJobStatus)
+
+    def queue_minion_job(
+        self,
+        jobname: str,
+        args: str | list[Any],
+        priority: int = 0,
+    ) -> MinionJobResponse:
+        """
+        Queue a Minion job with custom args.
+        :param jobname: Type of job to queue.
+        :param args: JSON array string or list of args.
+        :param priority: Minion priority.
+        :return: operation result
+        """
+        args_value = args if isinstance(args, str) else json.dumps(args)
+        return self.request_operation(
+            "POST",
+            f"/api/minion/{jobname}/queue",
+            model=MinionJobResponse,
+            params={"args": args_value, "priority": priority},
         )
-        return FullJobStatus(**resp.json())

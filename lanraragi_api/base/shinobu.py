@@ -1,6 +1,4 @@
-import requests
-
-from lanraragi_api.base.base import BaseAPICall
+from lanraragi_api.base.base import BaseAPICall, OperationResponse
 
 
 class ShinobuAPI(BaseAPICall):
@@ -13,33 +11,25 @@ class ShinobuAPI(BaseAPICall):
         Get the current status of the Worker.
         :return: operation result
         """
-        resp = requests.get(
-            f"{self.server}/api/shinobu",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_json("GET", "/api/shinobu")
 
-    def stop_shinobu(self) -> dict:
+    def stop_shinobu(self) -> OperationResponse:
         """
         Stop the Worker.
         :return: operation result
         """
-        resp = requests.post(
-            f"{self.server}/api/shinobu/stop",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_operation("POST", "/api/shinobu/stop")
 
-    def restart_shinobu(self) -> dict:
+    def restart_shinobu(self) -> OperationResponse:
         """
         (Re)-start the Worker.
         :return: operation result
         """
-        resp = requests.post(
-            f"{self.server}/api/shinobu/restart",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_operation("POST", "/api/shinobu/restart")
+
+    def rescan_shinobu(self) -> OperationResponse:
+        """
+        Rescan filemap and restart the Worker.
+        :return: operation result
+        """
+        return self.request_operation("POST", "/api/shinobu/rescan")

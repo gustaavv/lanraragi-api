@@ -1,17 +1,16 @@
 from typing import Optional
 
-import requests
 from pydantic import BaseModel, Field
 
-from lanraragi_api.base.base import BaseAPICall
+from lanraragi_api.base.base import BaseAPICall, OperationResponse
 
 
-class Category(BaseModel):
+class CategoryMetadata(BaseModel):
     archives: list[str] = Field(...)
     id: str = Field(...)
     name: str = Field(...)
-    pinned: str = Field(...)
-    search: str = Field(...)
+    pinned: int | str | None = Field(default=None)
+    search: str | None = Field(default=None)
 
 
 class CategoryAPI(BaseAPICall):
@@ -19,37 +18,30 @@ class CategoryAPI(BaseAPICall):
     Everything dealing with Categories.
     """
 
-    def get_all_categories(self) -> list[Category]:
+    def get_all_categories(self) -> list[CategoryMetadata]:
         """
         Get all the categories saved on the server.
         :return:  list of categories
         """
-        resp = requests.get(
-            f"{self.server}/api/categories",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        list = resp.json()
-        return [Category(**c) for c in list]
+        return self.request_model_list("GET", "/api/categories", CategoryMetadata)
 
-    def get_category(self, id: str) -> Optional[Category]:
+    def get_category(self, id: str) -> Optional[CategoryMetadata]:
         """
         Get the details of the specified category ID.
         :param id: ID of the Category desired.
         :return: category
         """
-        resp = requests.get(
-            f"{self.server}/api/categories/{id}",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
+        path = f"/api/categories/{id}"
+        resp = self.request("GET", path, expected_statuses={200, 400})
         if resp.status_code == 400:
             return None
-        return Category(**resp.json())
+        return self.parse_model(
+            CategoryMetadata, self.parse_json_response(resp, path), path
+        )
 
     def create_category(
         self, name: str, search: str = None, pinned: bool = None
-    ) -> dict:
+    ) -> OperationResponse:
         """
         Create a new Category.
 
@@ -58,22 +50,19 @@ class CategoryAPI(BaseAPICall):
         :param pinned: whether the created category will  be pinned.
         :return: operation result
         """
-        resp = requests.put(
-            f"{self.server}/api/categories",
-            params=self.build_params(
-                {
-                    "name": name,
-                    "search": search,
-                    "pinned": pinned if pinned else None,
-                }
-            ),
-            headers=self.build_headers(),
+        return self.request_operation(
+            "PUT",
+            "/api/categories",
+            data={
+                "name": name,
+                "search": search,
+                "pinned": pinned,
+            },
         )
-        return resp.json()
 
     def update_category(
         self, id: str, name: str = None, search: str = None, pinned: bool = None
-    ) -> dict:
+    ) -> OperationResponse:
         """
         Modify a Category.
         :param id: ID of the Category to update.
@@ -84,59 +73,49 @@ class CategoryAPI(BaseAPICall):
         category will be unpinned on update.
         :return: operation result
         """
-        resp = requests.put(
-            f"{self.server}/api/categories/{id}",
-            params=self.build_params(
-                {
-                    "name": name,
-                    "search": search,
-                    "pinned": pinned if pinned else None,
-                }
-            ),
-            headers=self.build_headers(),
+        return self.request_operation(
+            "PUT",
+            f"/api/categories/{id}",
+            data={
+                "name": name,
+                "search": search,
+                "pinned": pinned,
+            },
         )
-        return resp.json()
 
-    def delete_category(self, id: str) -> dict:
+    def delete_category(self, id: str) -> OperationResponse:
         """
         Remove a Category.
         :param id: Category ID
         :return: operation result
         """
-        resp = requests.delete(
-            f"{self.server}/api/categories/{id}",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_operation("DELETE", f"/api/categories/{id}")
 
-    def add_archive_to_category(self, category_id: str, archive_id: str) -> dict:
+    def add_archive_to_category(
+        self, category_id: str, archive_id: str
+    ) -> OperationResponse:
         """
         Adds the specified Archive ID (see Archive API) to the given Category.
         :param category_id: Category ID to add the Archive to.
         :param archive_id: Archive ID to add.
         :return: operation result
         """
-        resp = requests.put(
-            f"{self.server}/api/categories/{category_id}/{archive_id}",
-            params=self.build_params(),
-            headers=self.build_headers(),
+        return self.request_operation(
+            "PUT", f"/api/categories/{category_id}/{archive_id}"
         )
-        return resp.json()
 
-    def remove_archive_from_category(self, category_id: str, archive_id: str) -> dict:
+    def remove_archive_from_category(
+        self, category_id: str, archive_id: str
+    ) -> OperationResponse:
         """
         Remove an Archive ID from a Category.
         :param category_id: Category ID
         :param archive_id: Archive ID
         :return: operation result
         """
-        resp = requests.delete(
-            f"{self.server}/api/categories/{category_id}/{archive_id}",
-            params=self.build_params(),
-            headers=self.build_headers(),
+        return self.request_operation(
+            "DELETE", f"/api/categories/{category_id}/{archive_id}"
         )
-        return resp.json()
 
     def get_bookmark_link(self) -> dict:
         """
@@ -144,14 +123,9 @@ class CategoryAPI(BaseAPICall):
         feature. Returns an empty string if no category is linked.
         :return: operation result
         """
-        resp = requests.get(
-            f"{self.server}/api/categories/bookmark_link",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_json("GET", "/api/categories/bookmark_link")
 
-    def update_bookmark_link(self, id: str) -> dict:
+    def update_bookmark_link(self, id: str) -> OperationResponse:
         """
         Links the bookmark feature to the specified static category. This
         determines which category archives are added to when using the bookmark
@@ -159,22 +133,13 @@ class CategoryAPI(BaseAPICall):
         :param id: ID of the static category to link with the bookmark feature.
         :return: operation result
         """
-        resp = requests.put(
-            f"{self.server}/api/categories/bookmark_link/{id}",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_operation("PUT", f"/api/categories/bookmark_link/{id}")
 
-    def disable_bookmark_feature(self) -> dict:
+    def disable_bookmark_feature(self) -> OperationResponse:
         """
         Disables the bookmark feature by removing the link to any category.
         Returns the ID of the previously linked category.
         :return: operation result
         """
-        resp = requests.delete(
-            f"{self.server}/api/categories/bookmark_link",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_operation("DELETE", "/api/categories/bookmark_link")
+

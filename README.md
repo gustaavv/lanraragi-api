@@ -20,13 +20,13 @@ Get metadata of a random archive:
 
 ```python
 from lanraragi_api import LANraragiAPI
-from lanraragi_api.base.archive import Archive
+from lanraragi_api.base.archive import ArchiveMetadata
 
-apikey = 'your-key'
-server = 'http://127.0.0.1:3000'
+apikey = "your-key"
+server = "http://127.0.0.1:3000"
 api = LANraragiAPI(server, key=apikey)
 
-archives: list[Archive] = api.search.get_random_archives()
+archives: list[ArchiveMetadata] = api.search.get_random_archives()
 print(archives[0])
 ```
 
@@ -41,6 +41,8 @@ Functions in the `lanraragi_api.enhanced` package are built on the base APIs, of
 
 - `server_side.py` contains server-side functions. The code is the same to that of LANraragi, only translated from Perl to Python.
 - `script.py` contains functions for operation and management.
+
+
 
 
 

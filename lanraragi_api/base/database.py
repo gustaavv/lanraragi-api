@@ -1,13 +1,40 @@
-import requests
 from pydantic import BaseModel, Field
 
-from lanraragi_api.base.base import BaseAPICall
+from lanraragi_api.base.base import BaseAPICall, DictLikeModel, OperationResponse
 
 
 class TagStatistic(BaseModel):
-    namespace: str = Field(...)
+    namespace: str | None = Field(default=None)
     text: str = Field(...)
     weight: int = Field(...)
+
+
+class BackupArchiveMetadata(DictLikeModel):
+    arcid: str = Field(...)
+    title: str = Field(...)
+    tags: str | None = Field(default=None)
+    summary: str | None = Field(default=None)
+    thumbhash: str | None = Field(default=None)
+    filename: str = Field(...)
+
+
+class BackupCategoryMetadata(DictLikeModel):
+    archives: list[str] = Field(default_factory=list)
+    catid: str = Field(...)
+    name: str | None = Field(default=None)
+    search: str | None = Field(default=None)
+
+
+class BackupTankoubonMetadataJson(DictLikeModel):
+    tankid: str = Field(...)
+    name: str | None = Field(default=None)
+    archives: list[str] = Field(default_factory=list)
+
+
+class DatabaseBackup(DictLikeModel):
+    archives: list[BackupArchiveMetadata] = Field(default_factory=list)
+    categories: list[BackupCategoryMetadata] = Field(default_factory=list)
+    tankoubons: list[BackupTankoubonMetadataJson] = Field(default_factory=list)
 
 
 class DatabaseAPI(BaseAPICall):
@@ -15,37 +42,44 @@ class DatabaseAPI(BaseAPICall):
     Query and modify the database.
     """
 
-    def get_tag_statistics(self, min_weight: int = 1) -> list[TagStatistic]:
+    def get_tag_statistics(
+        self,
+        min_weight: int = 1,
+        hide_excluded_namespaces: bool | None = None,
+    ) -> list[TagStatistic]:
         """
         Get tags from the database, with a value symbolizing their prevalence.
 
         :param min_weight: Add this parameter if you want to only get tags
         whose weight is at least the given minimum.
         Default is 1 if not specified, to get all tags.
+        :param hide_excluded_namespaces: Whether to hide tags that belong to
+        excluded namespaces in server settings.
         :return: list of tag statistics
         """
-        resp = requests.get(
-            f"{self.server}/api/database/stats",
-            params=self.build_params({"minweight": min_weight}),
-            headers=self.build_headers(),
-        )
-        list = resp.json()
-        return [TagStatistic(**t) for t in list]
+        hide_excluded = None
+        if hide_excluded_namespaces is not None:
+            hide_excluded = "true" if hide_excluded_namespaces else "false"
 
-    def clean_database(self) -> dict:
+        return self.request_model_list(
+            "GET",
+            "/api/database/stats",
+            TagStatistic,
+            params={
+                "minweight": min_weight,
+                "hide_excluded_namespaces": hide_excluded,
+            },
+        )
+
+    def clean_database(self) -> OperationResponse:
         """
         Cleans the Database, removing entries for files that are no longer on
         the filesystem.
         :return: operation result
         """
-        resp = requests.post(
-            f"{self.server}/api/database/clean",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_operation("POST", "/api/database/clean")
 
-    def drop_database(self) -> dict:
+    def drop_database(self) -> OperationResponse:
         """
         Delete the entire database, including user preferences.
 
@@ -53,14 +87,9 @@ class DatabaseAPI(BaseAPICall):
         the server as a client!
         :return: operation result
         """
-        resp = requests.post(
-            f"{self.server}/api/database/drop",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_operation("POST", "/api/database/drop")
 
-    def get_backup(self) -> dict:
+    def get_backup(self) -> DatabaseBackup:
         """
         Scans the entire database and returns a backup in JSON form.
 
@@ -69,21 +98,11 @@ class DatabaseAPI(BaseAPICall):
 
         :return: backup json file
         """
-        resp = requests.get(
-            f"{self.server}/api/database/backup",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_model("GET", "/api/database/backup", DatabaseBackup)
 
-    def clear_all_new_flags(self) -> dict:
+    def clear_all_new_flags(self) -> OperationResponse:
         """
         Clears the "New!" flag on all archives.
         :return: operation result
         """
-        resp = requests.delete(
-            f"{self.server}/api/database/isnew",
-            params=self.build_params(),
-            headers=self.build_headers(),
-        )
-        return resp.json()
+        return self.request_operation("DELETE", "/api/database/isnew")
