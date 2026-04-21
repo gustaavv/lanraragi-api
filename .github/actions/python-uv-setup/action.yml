@@ -1,12 +1,9 @@
 name: "Setup Python and uv"
-description: "Checkout, setup Python and uv in one go"
+description: "Setup Python and uv in one go"
 
 runs:
   using: "composite"
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
-
     - name: Set up Python
       uses: actions/setup-python@v6
       with:

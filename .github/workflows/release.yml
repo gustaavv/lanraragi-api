@@ -18,8 +18,8 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Basic setup
-        uses: ./.github/actions/basic-setup
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
       - name: Validate version number
         run: |
@@ -32,6 +32,9 @@ jobs:
           fi
 
           echo "Validation succeeds, version number = $TAG"
+
+      - name: Setup Python and uv
+        uses: ./.github/actions/python-uv-setup
 
       - name: Build package
         run: uv build

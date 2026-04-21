@@ -20,8 +20,11 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - name: Basic setup
-        uses: ./.github/actions/basic-setup
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python and uv
+        uses: ./.github/actions/python-uv-setup
 
       - name: Install the project
         run: uv sync --locked --all-extras --dev
