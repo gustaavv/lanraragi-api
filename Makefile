@@ -31,6 +31,3 @@ lint: ## Lint code using ruff
 lint-fix: ## Lint code and automatically fix issues using ruff
 	@echo "Linting code and fixing issues with ruff..."
 	@$(MAKE) --no-print-directory uv.run CMD='ruff check --fix'
-
-ci: format-check lint ## Run all checks for CI
-	@echo "All checks passed!"
