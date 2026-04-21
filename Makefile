@@ -5,7 +5,6 @@ SHELL := bash
 	uv.run \
 	format format-check \
 	lint lint-fix \
-	ci
 
 
 help: ## Show dynamic help for available targets
