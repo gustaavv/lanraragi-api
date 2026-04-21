@@ -87,7 +87,6 @@ class APIOperationError(APIError):
 
 
 class BaseAPICall:
-
     def __init__(
         self,
         server: str,

@@ -77,9 +77,7 @@ class MiscAPI(BaseAPICall):
         """
         return self.request_model("GET", "/api/info", ServerInfo)
 
-    def get_opds_catalog(
-        self, archive_id: str = None, category_id: str = None
-    ) -> str:
+    def get_opds_catalog(self, archive_id: str = None, category_id: str = None) -> str:
         """
         Get the Archive Index as an OPDS 1.2 Catalog with PSE 1.1 compatibility.
         :param category_id: Category ID. If passed, the OPDS catalog will be

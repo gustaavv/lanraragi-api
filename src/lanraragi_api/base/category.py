@@ -142,4 +142,3 @@ class CategoryAPI(BaseAPICall):
         :return: operation result
         """
         return self.request_operation("DELETE", "/api/categories/bookmark_link")
-
