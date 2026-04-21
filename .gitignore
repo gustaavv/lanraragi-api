@@ -6,3 +6,4 @@ dist
 **/*.egg-info
 test.py
 __pycache__/
+.ruff_cache/
