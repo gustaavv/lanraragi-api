@@ -67,8 +67,8 @@ def remove_all_categories(api: LANraragiAPI):
     cs = api.category.get_all_categories()
     for c in cs:
         for aid in c.archives:
-            result = api.category.remove_archive_from_category(c.id, aid)
+            api.category.remove_archive_from_category(c.id, aid)
         print(f"remove {len(c.archives)} from category {c.id}:{c.name}")
     for c in cs:
-        result = api.category.delete_category(c.id)
+        api.category.delete_category(c.id)
     print(f"remove {len(cs)} categories")
