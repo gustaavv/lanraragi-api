@@ -5,7 +5,7 @@ description = "A Python library for LANraragi API."
 readme = "README.md"
 authors = [{ name = "Gustav", email = "gustaavv.git@yahoo.com" }]
 requires-python = ">=3.10"
-dependencies = ["pydantic==2.12.5", "requests==2.32.5"]
+dependencies = ["pydantic==2.12.5", "requests==2.33.1"]
 urls = { repository = "https://github.com/gustaavv/lanraragi-api" }
 
 [build-system]
