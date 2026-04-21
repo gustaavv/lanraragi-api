@@ -14,23 +14,14 @@ on:
       - "uv.lock"
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version-file: ".python-version"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "0.11.7"
+      - name: Basic setup
+        uses: ./.github/actions/basic-setup
 
       - name: Install the project
         run: uv sync --locked --all-extras --dev
