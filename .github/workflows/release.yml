@@ -17,7 +17,7 @@ jobs:
 
       - name: Validate version number
         run: |
-          PY_VERSION=$(grep -oP "(?<=version=['\"])[^'\"]+(?=['\"])" pyproject.toml | head -1)
+          PY_VERSION=$(grep -oP "^version\s*=\s*['\"]\K[^'\"]+" pyproject.toml | head -1)
           TAG=${GITHUB_REF#refs/*/}
 
           if [ "$PY_VERSION" != "$TAG" ]; then
