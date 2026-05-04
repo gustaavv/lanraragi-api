@@ -191,10 +191,14 @@ class MiscAPI(BaseAPICall):
         :param use_form_data: Send values as form data instead of query params.
         :return: operation result
         """
-        payload = {"url": url, "catid": category_id}
-        request_kwargs = {"params": payload}
+        request_kwargs = {"params": {"url": url, "catid": category_id}}
         if use_form_data:
-            request_kwargs = {"data": payload}
+            files = {}
+            if url is not None:
+                files["url"] = (None, url)
+            if category_id is not None:
+                files["catid"] = (None, category_id)
+            request_kwargs = {"files": files}
 
         return self.request_operation(
             "POST",

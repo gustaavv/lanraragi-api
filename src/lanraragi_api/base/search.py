@@ -51,8 +51,8 @@ class SearchAPI(BaseAPICall):
         :param order: Order of the sort, either asc or desc. default is asc
         :param newonly: Limit search to new archives only.
         :param untaggedonly: Limit search to untagged archives only.
-        :param hidecompleted: Hide archives with completed progress
-        (client-specific compatibility parameter, not defined in OpenAPI).
+        :param hidecompleted: Hide archives where reading progress has reached
+        the end.
         :param groupby_tanks: Enable or disable Tankoubon grouping. Defaults to
         true. When enabled, Tankoubons will show in search results, replacing
         all the archive IDs they contain.
@@ -122,8 +122,8 @@ class SearchAPI(BaseAPICall):
                 you will get the full search shuffled randomly.
         :param new_only: Limit search to new archives only.
         :param untagged_only: Limit search to untagged archives only.
-        :param hide_completed: Hide archives with completed progress
-        (client-specific compatibility parameter, not defined in OpenAPI).
+        :param hide_completed: Hide archives where reading progress has reached
+        the end.
         :param groupby_tanks: Enable or disable Tankoubon grouping. Defaults to
         true. When enabled, Tankoubons will show in search results, replacing
         all the archive IDs they contain.
