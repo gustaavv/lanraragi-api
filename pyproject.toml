@@ -1,6 +1,6 @@
 [project]
 name = "lanraragi_api"
-version = "0.9.70.2"
+version = "0.9.71.0"
 description = "A Python library for LANraragi API."
 readme = "README.md"
 authors = [{ name = "Gustav", email = "gustaavv.git@yahoo.com" }]
