@@ -1,6 +1,7 @@
 from typing import Any, Optional
 
 from pydantic import AliasChoices, BaseModel, Field
+from requests import Response
 
 from lanraragi_api.base.archive import ArchiveMetadata
 from lanraragi_api.base.base import (
@@ -18,6 +19,7 @@ class TankoubonMetadata(BaseModel):
     name: str = Field(...)
     summary: str | None = Field(default=None)
     tags: str | None = Field(default=None)
+    progress: int | None = Field(default=None)
 
     @property
     def id(self) -> str:
@@ -41,16 +43,6 @@ class TankoubonAPI(BaseAPICall):
     """
     Tankoubon API.
     """
-
-    @staticmethod
-    def _as_bool_query(value: bool | str | None) -> bool | None:
-        if isinstance(value, str):
-            lowered = value.strip().lower()
-            if lowered in {"1", "true", "yes", "on"}:
-                return True
-            if lowered in {"0", "false", "no", "off"}:
-                return False
-        return value
 
     def get_tankoubon_list(self, page: int = None) -> TankoubonListResponse:
         """
@@ -80,26 +72,39 @@ class TankoubonAPI(BaseAPICall):
     def get_tankoubon_detail(
         self,
         id: str,
-        include_full_data: bool | str = None,
-        page: int = None,
-    ) -> TankoubonDetailResponse:
+    ) -> TankoubonMetadata:
         """
-        Get the details of the specified tankoubon ID, with the archives list
-        paginated.
+        Get the details of the specified tankoubon ID.
+
         :param id: ID of the Tankoubon desired.
-        :param include_full_data: If true, appends a full_data array with Archive objects.
-        :param page: Page of the Archives list.
-        :return: Tankoubon detail response
+        :return: Tankoubon metadata
         """
         path = f"/api/tankoubons/{id}"
-        include_full_data_value = self._as_bool_query(include_full_data)
+        payload = self.request_json("GET", path)
+        return self.parse_model(TankoubonMetadata, payload, path)
+
+    def get_tankoubon_full(
+        self,
+        id: str,
+        page: int = -1,
+    ) -> TankoubonDetailResponse:
+        """
+        Get the details of the specified tankoubon ID with paginated archive
+        metadata.
+
+        The amount of archives per page depends on the server
+        ``archives_per_page`` setting.
+
+        :param id: ID of the Tankoubon desired.
+        :param page: Page of the Archives list. Defaults to -1, which returns
+            all archives.
+        :return: Tankoubon detail response with full_data
+        """
+        path = f"/api/tankoubons/{id}/full"
         payload = self.request_json(
             "GET",
             path,
-            params={
-                "page": page,
-                "include_full_data": include_full_data_value,
-            },
+            params={"page": page},
         )
         result = payload.get("result")
         if result is None:
@@ -110,24 +115,83 @@ class TankoubonAPI(BaseAPICall):
             filtered=payload.get("filtered"),
         )
 
-    def get_tankoubon(
-        self,
-        id: str,
-        include_full_data: bool | str = None,
-        page: int = None,
-    ) -> TankoubonMetadata:
+    def get_tankoubon(self, id: str) -> TankoubonMetadata:
         """
-        Backward-compatible wrapper returning only the tankoubon object.
+        Get the details of the specified tankoubon ID.
+
         :param id: ID of the Tankoubon desired.
-        :param include_full_data: If true, appends a full_data array with Archive objects.
-        :param page: Page of the Archives list.
         :return: Tankoubon
         """
-        return self.get_tankoubon_detail(
-            id=id,
-            include_full_data=include_full_data,
-            page=page,
-        ).result
+        return self.get_tankoubon_detail(id=id)
+
+    def get_tankoubon_thumbnail(
+        self,
+        id: str,
+        no_fallback: bool | None = None,
+    ) -> Response:
+        """
+        Get the cover thumbnail for a given Tankoubon.
+
+        By default, the thumbnail is sourced from the first page of the first
+        archive. This endpoint will return a placeholder image if it doesn't
+        already exist. If you want to queue generation of the thumbnail in the
+        background, you can use the no_fallback query parameter.
+
+        :param id: ID of the Tankoubon desired.
+        :param no_fallback: Disables the placeholder image, queues the
+            thumbnail for extraction and returns a JSON with code 202. This
+            parameter does nothing if the image already exists. (You will get
+            the image with code 200 no matter what)
+        :return: the response object (image bytes or 202 JSON)
+        """
+        no_fallback_value = None
+        if no_fallback is not None:
+            no_fallback_value = "true" if no_fallback else "false"
+
+        return self.request(
+            "GET",
+            f"/api/tankoubons/{id}/thumbnail",
+            params={"no_fallback": no_fallback_value},
+        )
+
+    def update_tankoubon_thumbnail(self, id: str, page: int) -> OperationResponse:
+        """
+        Set the cover thumbnail for the given Tankoubon using a global page
+        number that spans all archives in the tank (in order). The global page
+        is translated to the correct archive and local page automatically.
+
+        :param id: ID of the Tankoubon desired.
+        :param page: Global 1-indexed page number across all archives in the
+            tankoubon. Page 1 is the first page of the first archive, and so on.
+        :return: operation result
+        """
+        return self.request_operation(
+            "PUT",
+            f"/api/tankoubons/{id}/thumbnail",
+            params={"page": page},
+        )
+
+    def update_tank_progress(self, id: str, page: int) -> OperationResponse:
+        """
+        Tell the server which page of this Tankoubon you're currently reading,
+        so that it updates its internal reading progression accordingly.
+
+        The page number is global across all Archives in the tank (If a tank
+        has two Archives with 20 and 25 pages, page 26 will be page 6 in
+        Archive #2).
+
+        If the server is configured to use clientside progress tracking, this
+        API call will return an error!
+
+        Make sure to check using ``/api/info`` whether the server tracks
+        reading progression or not before calling this endpoint.
+
+        :param id: ID of the Tankoubon to update.
+        :param page: Global 1-indexed page number to update the reading
+            progress to. Must be a positive integer.
+        :return: operation result
+        """
+        return self.request_operation("PUT", f"/api/tankoubons/{id}/progress/{page}")
 
     def create_tankoubon(self, name: str, tankid: str = None) -> OperationResponse:
         """
@@ -147,6 +211,7 @@ class TankoubonAPI(BaseAPICall):
         name: str = None,
         summary: str = None,
         tags: str = None,
+        append: bool = None,
         metadata: dict[str, Any] = None,
     ) -> OperationResponse:
         """
@@ -155,7 +220,10 @@ class TankoubonAPI(BaseAPICall):
         :param archives: Ordered list of archive IDs.
         :param name: Optional metadata name.
         :param summary: Optional metadata summary.
-        :param tags: Optional metadata tags.
+        :param tags: Optional metadata tags. This will replace whatever
+            additional tags the Tank already has, unless ``append`` is True.
+        :param append: If True, tags are appended to the Tank's existing own
+            tags instead of replacing them. Defaults to False.
         :param metadata: Optional metadata payload, merged with explicit args.
         :return: operation result
         """
@@ -170,6 +238,8 @@ class TankoubonAPI(BaseAPICall):
             metadata_payload["summary"] = summary
         if tags is not None:
             metadata_payload["tags"] = tags
+        if append is not None:
+            metadata_payload["append"] = append
 
         if metadata_payload:
             payload["metadata"] = metadata_payload

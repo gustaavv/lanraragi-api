@@ -6,6 +6,7 @@ from lanraragi_api.base import (
     MiscAPI,
     SearchAPI,
     ShinobuAPI,
+    StampAPI,
     TankoubonAPI,
 )
 from lanraragi_api.base.base import Auth
@@ -102,6 +103,17 @@ class LANraragiAPI:
             default_params=default_params,
         )
         self.misc = MiscAPI(
+            server,
+            key=key,
+            auth_way=auth_way,
+            timeout=timeout,
+            include_error_payload=include_error_payload,
+            include_operation_error_message=include_operation_error_message,
+            raise_on_operation_error=raise_on_operation_error,
+            default_headers=default_headers,
+            default_params=default_params,
+        )
+        self.stamp = StampAPI(
             server,
             key=key,
             auth_way=auth_way,

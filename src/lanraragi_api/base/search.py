@@ -15,6 +15,12 @@ class SearchResult(BaseModel):
     recordsTotal: int | None = Field(default=None)
 
 
+class SearchIdsResult(BaseModel):
+    data: list[str] = Field(...)
+    recordsFiltered: int | None = Field(default=None)
+    recordsTotal: int | None = Field(default=None)
+
+
 class SearchAPI(BaseAPICall):
     """
     Perform searches.
@@ -101,6 +107,63 @@ class SearchAPI(BaseAPICall):
             untaggedonly=untagged_only if untagged_only else None,
             hidecompleted=hide_completed if hide_completed else None,
             groupby_tanks=groupby_tanks if groupby_tanks else None,
+        )
+
+    def search_archive_ids(
+        self,
+        category: str | None = None,
+        filter: str | None = None,
+        start: int | None = None,
+        sortby: str | None = None,
+        order: str | None = None,
+        newonly: bool | None = None,
+        untaggedonly: bool | None = None,
+        hidecompleted: bool | None = None,
+        groupby_tanks: bool | None = None,
+    ) -> SearchIdsResult:
+        """
+        Search for Archives like ``/api/search``, but returns only the ordered
+        list of matching Archive IDs without the accompanying metadata.
+
+        :param category: ID of the category you want to restrict this search to.
+        :param filter: Search query. This follows the same rules as the queries
+            in ``/api/search``.
+        :param start: From which archive in the total result count this
+            enumeration should start. The total number of archives displayed
+            depends on the server-side page size preference.
+            From 0.8.2 onwards, you can use "-1" here to get the full,
+            unpaged list of IDs.
+        :param sortby: Namespace by which you want to sort the results. There
+            are specific sort keys you can use: (1) title if you want to sort
+            by title; (2) lastread if you want to sort by last read time. (If
+            Server-side Progress Tracking is enabled) (Default value is title.
+            If you sort by lastread, IDs that have never been read will be
+            removed from the search.)
+        :param order: Order of the sort, either ``asc`` or ``desc``.
+        :param newonly: Limit search to new archives only.
+        :param untaggedonly: Limit search to untagged archives only.
+        :param hidecompleted: Hide archives where reading progress has reached
+            the end.
+        :param groupby_tanks: Enable or disable Tankoubon grouping. Defaults to
+            true. When enabled, Tankoubons will show in search results,
+            replacing all the archive IDs they contain.
+        :return: SearchIdsResult
+        """
+        return self.request_model(
+            "GET",
+            "/api/search/ids",
+            SearchIdsResult,
+            params={
+                "category": category,
+                "filter": filter,
+                "start": start,
+                "sortby": sortby,
+                "order": order,
+                "newonly": newonly,
+                "untaggedonly": untaggedonly,
+                "hidecompleted": hidecompleted,
+                "groupby_tanks": groupby_tanks,
+            },
         )
 
     def get_random_archives(

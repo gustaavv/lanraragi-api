@@ -18,8 +18,14 @@ from lanraragi_api.base.database import (
 )
 from lanraragi_api.base.minion import MinionAPI
 from lanraragi_api.base.misc import MiscAPI
-from lanraragi_api.base.search import SearchAPI
+from lanraragi_api.base.search import SearchAPI, SearchIdsResult
 from lanraragi_api.base.shinobu import ShinobuAPI
+from lanraragi_api.base.stamp import (
+    AddStampResponse,
+    StampAPI,
+    StampsData,
+    StampsResponse,
+)
 from lanraragi_api.base.tankoubon import (
     TankoubonAPI,
     TankoubonDetailResponse,
@@ -28,6 +34,7 @@ from lanraragi_api.base.tankoubon import (
 )
 
 __all__ = [
+    "AddStampResponse",
     "ArchiveAPI",
     "ArchiveMetadata",
     "APIError",
@@ -47,7 +54,11 @@ __all__ = [
     "MinionAPI",
     "MiscAPI",
     "SearchAPI",
+    "SearchIdsResult",
     "ShinobuAPI",
+    "StampAPI",
+    "StampsData",
+    "StampsResponse",
     "TankoubonAPI",
     "TankoubonDetailResponse",
     "TankoubonListResponse",

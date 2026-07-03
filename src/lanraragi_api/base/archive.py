@@ -94,8 +94,8 @@ class ArchiveAPI(BaseAPICall):
 
     def get_all_archives(self) -> list[ArchiveMetadata]:
         """
-        Get the Archive Index in JSON form. You can use the IDs of this JSON
-        with the other endpoints.
+        Get the Archive Index in JSON form. This doesn't include Tankoubons by
+        design. You can use the IDs of this JSON with the other endpoints.
         :return: list of archives
         """
         return self.request_model_list("GET", "/api/archives", ArchiveMetadata)
@@ -115,8 +115,8 @@ class ArchiveAPI(BaseAPICall):
 
     def get_untagged_archives(self) -> list[str]:
         """
-        Get archives that don't have any tags recorded. This follows the same
-        rules as the Batch Tagging filter and will include archives that have
+        Get Archives that don't have any tags recorded. This follows the same
+        rules as the Batch Tagging filter and will include Archives that have
         parody:, date_added:, series: or artist: tags.
         :return: list of archive IDs
         """
