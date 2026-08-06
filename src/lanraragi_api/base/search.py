@@ -84,9 +84,9 @@ class SearchAPI(BaseAPICall):
 
     def search(
         self,
-        category: str = None,
-        filter: str = None,
-        start: int = None,
+        category: str | None = None,
+        filter: str | None = None,
+        start: int | None = None,
         sort_by: str = "title",
         order: str = "asc",
         new_only: bool = False,
@@ -168,8 +168,8 @@ class SearchAPI(BaseAPICall):
 
     def get_random_archives(
         self,
-        category: str = None,
-        filter: str = None,
+        category: str | None = None,
+        filter: str | None = None,
         count: int = 5,
         new_only: bool = False,
         untagged_only: bool = False,

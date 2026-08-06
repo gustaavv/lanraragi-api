@@ -16,9 +16,9 @@ class LANraragiAPI:
     def __init__(
         self,
         server: str,
-        key: str = None,
+        key: str | None = None,
         auth_way: Auth = Auth.AUTH_HEADER,
-        timeout: int | float | tuple[int, int] | None = None,
+        timeout: float | tuple[int, int] | None = None,
         include_error_payload: bool = False,
         include_operation_error_message: bool = True,
         raise_on_operation_error: bool = False,

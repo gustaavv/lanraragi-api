@@ -77,7 +77,9 @@ class MiscAPI(BaseAPICall):
         """
         return self.request_model("GET", "/api/info", ServerInfo)
 
-    def get_opds_catalog(self, archive_id: str = None, category_id: str = None) -> str:
+    def get_opds_catalog(
+        self, archive_id: str | None = None, category_id: str | None = None
+    ) -> str:
         """
         Get the Archive Index as an OPDS 1.2 Catalog with PSE 1.1 compatibility.
         :param category_id: Category ID. If passed, the OPDS catalog will be
@@ -101,7 +103,7 @@ class MiscAPI(BaseAPICall):
         resp = self.request("GET", f"/api/opds/{id}")
         return resp.text
 
-    def get_opds_page(self, id: str, page: int = None) -> Response:
+    def get_opds_page(self, id: str, page: int | None = None) -> Response:
         """
         Get an OPDS-PSE image page for an archive.
         :param id: ID of an archive.
@@ -121,7 +123,7 @@ class MiscAPI(BaseAPICall):
         return self.request_model_list("GET", f"/api/plugins/{type}", PluginInfo)
 
     def use_plugin(
-        self, plugin: str, id: str = None, arg: str = None
+        self, plugin: str, id: str | None = None, arg: str | None = None
     ) -> PluginUseResponse:
         """
         Uses a Plugin and returns the result.
@@ -145,7 +147,11 @@ class MiscAPI(BaseAPICall):
         )
 
     def use_plugin_async(
-        self, plugin: str, id: str = None, arg: str = None, priority: int = 0
+        self,
+        plugin: str,
+        id: str | None = None,
+        arg: str | None = None,
+        priority: int = 0,
     ) -> MinionJobResponse:
         """
         Uses a Plugin and returns a Minion Job ID matching the Plugin run.
@@ -181,7 +187,7 @@ class MiscAPI(BaseAPICall):
     def queue_url_to_download(
         self,
         url: str,
-        category_id: str = None,
+        category_id: str | None = None,
         use_form_data: bool = False,
     ) -> DownloadUrlResponse:
         """

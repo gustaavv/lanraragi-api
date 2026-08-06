@@ -90,9 +90,9 @@ class BaseAPICall:
     def __init__(
         self,
         server: str,
-        key: str = None,
+        key: str | None = None,
         auth_way: Auth = Auth.AUTH_HEADER,
-        timeout: int | float | tuple[int, int] | None = None,
+        timeout: float | tuple[int, int] | None = None,
         include_error_payload: bool = False,
         include_operation_error_message: bool = True,
         raise_on_operation_error: bool = False,
@@ -111,8 +111,7 @@ class BaseAPICall:
         self.include_error_payload = include_error_payload
         self.include_operation_error_message = include_operation_error_message
         self.raise_on_operation_error = raise_on_operation_error
-        if self.server.endswith("/"):
-            self.server = self.server[:-1]
+        self.server = self.server.removesuffix("/")
         self.default_headers = dict(default_headers)
         self.default_params = dict(default_params)
 
@@ -144,7 +143,7 @@ class BaseAPICall:
         return merged
 
     def _to_url(self, path: str) -> str:
-        if path.startswith("http://") or path.startswith("https://"):
+        if path.startswith(("http://", "https://")):
             raise ValueError("absolute URLs are not allowed")
         if "?" in path or "#" in path:
             raise ValueError("path must not include query or fragment")
@@ -159,7 +158,7 @@ class BaseAPICall:
         params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
-        timeout: int | float | tuple[int, int] | None = None,
+        timeout: float | tuple[int, int] | None = None,
         **kwargs,
     ) -> requests.Response:
         url = self._to_url(path)
@@ -211,7 +210,7 @@ class BaseAPICall:
         params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
-        timeout: int | float | tuple[int, int] | None = None,
+        timeout: float | tuple[int, int] | None = None,
         **kwargs,
     ):
         resp = self.request(
@@ -233,7 +232,7 @@ class BaseAPICall:
         params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
-        timeout: int | float | tuple[int, int] | None = None,
+        timeout: float | tuple[int, int] | None = None,
         **kwargs,
     ):
         payload = self.request_json(
@@ -255,7 +254,7 @@ class BaseAPICall:
         params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
-        timeout: int | float | tuple[int, int] | None = None,
+        timeout: float | tuple[int, int] | None = None,
         **kwargs,
     ):
         payload = self.request_json(
@@ -278,7 +277,7 @@ class BaseAPICall:
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
         raise_on_failure: bool | None = None,
-        timeout: int | float | tuple[int, int] | None = None,
+        timeout: float | tuple[int, int] | None = None,
         **kwargs,
     ) -> OperationResponse:
         if expected_statuses is None:

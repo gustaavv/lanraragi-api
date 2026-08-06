@@ -1,5 +1,5 @@
 import json
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -9,8 +9,8 @@ from lanraragi_api.base.base import BaseAPICall, MinionJobResponse
 class BasicJobStatus(BaseModel):
     state: str = Field(...)
     task: str = Field(...)
-    error: Optional[str] = Field(default=None)
-    notes: Optional[dict[str, str]] = Field(default=None)
+    error: str | None = Field(default=None)
+    notes: dict[str, str] | None = Field(default=None)
 
 
 class FullJobStatus(BaseModel):
@@ -19,7 +19,7 @@ class FullJobStatus(BaseModel):
     children: list[Any] = Field(default_factory=list)
     created: str = Field(...)
     delayed: str = Field(...)
-    expires: Optional[str] = Field(default=None)
+    expires: str | None = Field(default=None)
     finished: str = Field(...)
     id: str = Field(...)
     lax: int = Field(default=0)
@@ -27,8 +27,8 @@ class FullJobStatus(BaseModel):
     parents: list[Any] = Field(default_factory=list)
     priority: str = Field(...)
     queue: str = Field(...)
-    result: Optional[dict[Any, Any]] = Field(default=None)
-    retried: Optional[Any] = Field(default=None)
+    result: dict[Any, Any] | None = Field(default=None)
+    retried: Any | None = Field(default=None)
     retries: str = Field(...)
     started: str = Field(...)
     state: str = Field(...)

@@ -1,5 +1,4 @@
 from os.path import isfile
-from typing import Optional
 
 from pydantic import BaseModel, Field
 from requests import Response
@@ -59,8 +58,8 @@ class ArchiveMetadata(BaseModel):
         """
         tags = ""
         modified: bool = False
-        for k in json:
-            for v in json[k]:
+        for k, values in json.items():
+            for v in values:
                 modified = True
                 if k == ARCHIVE_TAG_VALUES_SET:
                     tags += f"{v},"
@@ -100,7 +99,7 @@ class ArchiveAPI(BaseAPICall):
         """
         return self.request_model_list("GET", "/api/archives", ArchiveMetadata)
 
-    def get_archive(self, id: str) -> Optional[ArchiveMetadata]:
+    def get_archive(self, id: str) -> ArchiveMetadata | None:
         """
         Get Metadata (title, tags) for a given Archive using deprecated endpoint.
         :param id: ID of the Archive to process.
@@ -126,7 +125,7 @@ class ArchiveAPI(BaseAPICall):
             raise APIResponseDecodeError(self._to_url(path), "response is not a list")
         return payload
 
-    def get_archive_metadata(self, id: str) -> Optional[ArchiveMetadata]:
+    def get_archive_metadata(self, id: str) -> ArchiveMetadata | None:
         """
         Get Metadata (title, tags) for a given Archive.
         :param id: ID of the Archive to process.
@@ -335,11 +334,11 @@ class ArchiveAPI(BaseAPICall):
     def upload_archive(
         self,
         archive_path: str,
-        title: str = None,
-        tags: str = None,
-        summary: str = None,
-        category_id: str = None,
-        file_checksum: str = None,
+        title: str | None = None,
+        tags: str | None = None,
+        summary: str | None = None,
+        category_id: str | None = None,
+        file_checksum: str | None = None,
     ) -> OperationResponse:
         """
         Upload an Archive to the server.

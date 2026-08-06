@@ -4,6 +4,10 @@ import os
 import re
 
 
+class ArchiveFileError(Exception):
+    """Raised when an archive file cannot be accessed on disk."""
+
+
 def compute_id(file_path: str) -> str:
     """
     The archive id is determined only by the archive itself. So we can
@@ -14,13 +18,13 @@ def compute_id(file_path: str) -> str:
     :return:
     """
     if not os.path.isfile(file_path):
-        raise Exception(f"not a valid file path: {file_path}")
+        raise ArchiveFileError(f"not a valid file path: {file_path}")
     try:
         # Read the first 512 KB of the file
         with open(file_path, "rb") as file:
             data = file.read(512000)
-    except IOError as e:
-        raise Exception(f"Couldn't open {file_path}: {e}")
+    except OSError as e:
+        raise ArchiveFileError(f"Couldn't open {file_path}: {e}") from e
 
     # Compute the SHA-1 hash of the data
     sha1 = hashlib.sha1()
