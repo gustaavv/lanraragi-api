@@ -90,7 +90,7 @@ class BaseAPICall:
     def __init__(
         self,
         server: str,
-        key: str = None,
+        key: str | None = None,
         auth_way: Auth = Auth.AUTH_HEADER,
         timeout: float | tuple[int, int] | None = None,
         include_error_payload: bool = False,
@@ -143,7 +143,7 @@ class BaseAPICall:
         return merged
 
     def _to_url(self, path: str) -> str:
-        if path.startswith("http://") or path.startswith("https://"):
+        if path.startswith(("http://", "https://")):
             raise ValueError("absolute URLs are not allowed")
         if "?" in path or "#" in path:
             raise ValueError("path must not include query or fragment")

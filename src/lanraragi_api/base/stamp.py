@@ -57,8 +57,8 @@ class StampAPI(BaseAPICall):
         self,
         archive_id: str,
         index: int,
-        content: str = None,
-        position: str = None,
+        content: str | None = None,
+        position: str | None = None,
     ) -> AddStampResponse:
         """
         Add a new Stamp to the page at the given coordinates.
@@ -89,8 +89,8 @@ class StampAPI(BaseAPICall):
     def update_stamp(
         self,
         id: str,
-        content: str = None,
-        position: str = None,
+        content: str | None = None,
+        position: str | None = None,
     ) -> OperationResponse:
         """
         Update a stamp from an Archive.

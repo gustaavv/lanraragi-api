@@ -58,8 +58,8 @@ class ArchiveMetadata(BaseModel):
         """
         tags = ""
         modified: bool = False
-        for k in json:
-            for v in json[k]:
+        for k, values in json.items():
+            for v in values:
                 modified = True
                 if k == ARCHIVE_TAG_VALUES_SET:
                     tags += f"{v},"
@@ -334,11 +334,11 @@ class ArchiveAPI(BaseAPICall):
     def upload_archive(
         self,
         archive_path: str,
-        title: str = None,
-        tags: str = None,
-        summary: str = None,
-        category_id: str = None,
-        file_checksum: str = None,
+        title: str | None = None,
+        tags: str | None = None,
+        summary: str | None = None,
+        category_id: str | None = None,
+        file_checksum: str | None = None,
     ) -> OperationResponse:
         """
         Upload an Archive to the server.

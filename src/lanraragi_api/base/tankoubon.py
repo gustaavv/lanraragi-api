@@ -44,7 +44,7 @@ class TankoubonAPI(BaseAPICall):
     Tankoubon API.
     """
 
-    def get_tankoubon_list(self, page: int = None) -> TankoubonListResponse:
+    def get_tankoubon_list(self, page: int | None = None) -> TankoubonListResponse:
         """
         Get list of Tankoubons paginated.
         :param page: Page of the list of Tankoubons.
@@ -61,7 +61,7 @@ class TankoubonAPI(BaseAPICall):
             filtered=payload.get("filtered"),
         )
 
-    def get_all_tankoubons(self, page: int = None) -> list[TankoubonMetadata]:
+    def get_all_tankoubons(self, page: int | None = None) -> list[TankoubonMetadata]:
         """
         Backward-compatible wrapper returning only the tankoubon list.
         :param page: Page of the list of Tankoubons.
@@ -193,7 +193,9 @@ class TankoubonAPI(BaseAPICall):
         """
         return self.request_operation("PUT", f"/api/tankoubons/{id}/progress/{page}")
 
-    def create_tankoubon(self, name: str, tankid: str = None) -> OperationResponse:
+    def create_tankoubon(
+        self, name: str, tankid: str | None = None
+    ) -> OperationResponse:
         """
         Create a new Tankoubon or updated the name of an existing one.
         :param name: Name of the Tankoubon.
@@ -207,12 +209,12 @@ class TankoubonAPI(BaseAPICall):
     def update_tankoubon(
         self,
         id: str,
-        archives: list[str] = None,
-        name: str = None,
-        summary: str = None,
-        tags: str = None,
-        append: bool = None,
-        metadata: dict[str, Any] = None,
+        archives: list[str] | None = None,
+        name: str | None = None,
+        summary: str | None = None,
+        tags: str | None = None,
+        append: bool | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> OperationResponse:
         """
         Update Tankoubon metadata and/or contents.

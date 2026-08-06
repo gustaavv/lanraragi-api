@@ -24,7 +24,7 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
     for a in archives:
         k = unicodedata.normalize("NFC", a.title)
         if k not in map:
-            map[k] = list()
+            map[k] = []
         map[k].append(a)
     skip_count = 0
     update_count = 0

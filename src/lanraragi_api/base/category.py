@@ -38,7 +38,7 @@ class CategoryAPI(BaseAPICall):
         )
 
     def create_category(
-        self, name: str, search: str = None, pinned: bool = None
+        self, name: str, search: str | None = None, pinned: bool | None = None
     ) -> OperationResponse:
         """
         Create a new Category.
@@ -59,7 +59,11 @@ class CategoryAPI(BaseAPICall):
         )
 
     def update_category(
-        self, id: str, name: str = None, search: str = None, pinned: bool = None
+        self,
+        id: str,
+        name: str | None = None,
+        search: str | None = None,
+        pinned: bool | None = None,
     ) -> OperationResponse:
         """
         Modify a Category.
