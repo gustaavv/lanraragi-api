@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, Field
 
 from lanraragi_api.base.base import BaseAPICall, OperationResponse
