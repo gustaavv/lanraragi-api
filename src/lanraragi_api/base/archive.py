@@ -1,5 +1,4 @@
 from os.path import isfile
-from typing import Optional
 
 from pydantic import BaseModel, Field
 from requests import Response
@@ -100,7 +99,7 @@ class ArchiveAPI(BaseAPICall):
         """
         return self.request_model_list("GET", "/api/archives", ArchiveMetadata)
 
-    def get_archive(self, id: str) -> Optional[ArchiveMetadata]:
+    def get_archive(self, id: str) -> ArchiveMetadata | None:
         """
         Get Metadata (title, tags) for a given Archive using deprecated endpoint.
         :param id: ID of the Archive to process.
@@ -126,7 +125,7 @@ class ArchiveAPI(BaseAPICall):
             raise APIResponseDecodeError(self._to_url(path), "response is not a list")
         return payload
 
-    def get_archive_metadata(self, id: str) -> Optional[ArchiveMetadata]:
+    def get_archive_metadata(self, id: str) -> ArchiveMetadata | None:
         """
         Get Metadata (title, tags) for a given Archive.
         :param id: ID of the Archive to process.

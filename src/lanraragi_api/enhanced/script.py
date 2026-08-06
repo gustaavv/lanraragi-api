@@ -1,11 +1,10 @@
 import os
-from os.path import join
-
 import unicodedata
+from os.path import join
 
 from lanraragi_api import LANraragiAPI
 from lanraragi_api.base.archive import Archive
-from lanraragi_api.enhanced.server_side import is_archive, compute_id
+from lanraragi_api.enhanced.server_side import compute_id, is_archive
 
 
 def subfolders_to_artists(api: LANraragiAPI, dirname: str):

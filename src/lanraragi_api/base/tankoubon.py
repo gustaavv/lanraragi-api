@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import AliasChoices, BaseModel, Field
 from requests import Response
@@ -14,7 +14,7 @@ from lanraragi_api.base.base import (
 
 class TankoubonMetadata(BaseModel):
     archives: list[str] = Field(...)
-    full_data: Optional[list[ArchiveMetadata]] = Field(default=None)
+    full_data: list[ArchiveMetadata] | None = Field(default=None)
     tankid: str = Field(..., validation_alias=AliasChoices("tankid", "id"))
     name: str = Field(...)
     summary: str | None = Field(default=None)

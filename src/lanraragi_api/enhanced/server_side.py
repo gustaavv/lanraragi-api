@@ -19,7 +19,7 @@ def compute_id(file_path: str) -> str:
         # Read the first 512 KB of the file
         with open(file_path, "rb") as file:
             data = file.read(512000)
-    except IOError as e:
+    except OSError as e:
         raise Exception(f"Couldn't open {file_path}: {e}")
 
     # Compute the SHA-1 hash of the data

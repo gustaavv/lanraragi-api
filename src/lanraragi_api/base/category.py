@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -25,7 +24,7 @@ class CategoryAPI(BaseAPICall):
         """
         return self.request_model_list("GET", "/api/categories", CategoryMetadata)
 
-    def get_category(self, id: str) -> Optional[CategoryMetadata]:
+    def get_category(self, id: str) -> CategoryMetadata | None:
         """
         Get the details of the specified category ID.
         :param id: ID of the Category desired.
