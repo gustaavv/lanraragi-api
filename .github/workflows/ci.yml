@@ -2,11 +2,10 @@ name: Continuous Integration
 
 on:
   push:
-    branches:
-      - master
     paths:
       - ".github/workflows/ci.yml"
       - "src/**"
+      - "tests/**"
       - ".python-version"
       - "demo.py"
       - "Makefile"
@@ -34,3 +33,6 @@ jobs:
 
       - name: Lint
         run: make lint
+
+      - name: Test
+        run: make test
