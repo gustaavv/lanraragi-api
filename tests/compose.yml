@@ -1,0 +1,8 @@
+name: test-docker
+
+services:
+  test:
+    build:
+      context: .. # project root dir
+      dockerfile: tests/Dockerfile # relative to the context dir
+    command: pytest

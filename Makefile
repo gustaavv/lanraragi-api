@@ -33,6 +33,11 @@ lint-fix: ## Lint code and automatically fix issues using ruff
 	@$(MAKE) --no-print-directory uv.run CMD='ruff check --fix'
 
 .PHONY: test
-test: ## Run testing
+test: ## Run tests
 	@echo "Running tests"
 	@$(MAKE) --no-print-directory uv.run CMD='pytest'
+
+.PHONY: test.docker
+test.docker: ## Run tests in docker
+	@echo "Running tests in docker"
+	@docker compose -f tests/compose.yml up --build --exit-code-from test
