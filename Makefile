@@ -43,3 +43,6 @@ test.integration: ## Run integration test
 	@uv run script/integration_test_setup/config_lrr.py --base-url http://localhost:33333 --lrr-container-name lrr_api_test_lrr
 	@uv run pytest
 	@docker compose -f script/integration_test_setup/compose.yml down -v
+
+.PHONY: ci
+ci: format-check lint test.unit test.integration ## Run CI process locally
