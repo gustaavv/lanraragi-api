@@ -10,6 +10,8 @@ from lanraragi_api.base import (
     TankoubonAPI,
 )
 from lanraragi_api.base.base import Auth
+from lanraragi_api.base.opds import OPDSAPI
+from lanraragi_api.base.plugin import PluginAPI
 
 
 class LANraragiAPI:
@@ -36,7 +38,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.archive = ArchiveAPI(
+        self.archives = ArchiveAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -58,7 +60,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.category = CategoryAPI(
+        self.categories = CategoryAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -69,7 +71,18 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.tankoubon = TankoubonAPI(
+        self.tankoubons = TankoubonAPI(
+            server,
+            key=key,
+            auth_way=auth_way,
+            timeout=timeout,
+            include_error_payload=include_error_payload,
+            include_operation_error_message=include_operation_error_message,
+            raise_on_operation_error=raise_on_operation_error,
+            default_headers=default_headers,
+            default_params=default_params,
+        )
+        self.plugins = PluginAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -102,6 +115,17 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
+        self.opds = OPDSAPI(
+            server,
+            key=key,
+            auth_way=auth_way,
+            timeout=timeout,
+            include_error_payload=include_error_payload,
+            include_operation_error_message=include_operation_error_message,
+            raise_on_operation_error=raise_on_operation_error,
+            default_headers=default_headers,
+            default_params=default_params,
+        )
         self.misc = MiscAPI(
             server,
             key=key,
@@ -113,7 +137,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.stamp = StampAPI(
+        self.stamps = StampAPI(
             server,
             key=key,
             auth_way=auth_way,

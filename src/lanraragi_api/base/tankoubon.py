@@ -41,7 +41,7 @@ class TankoubonDetailResponse(DictLikeModel):
 
 class TankoubonAPI(BaseAPICall):
     """
-    Tankoubon API.
+    Endpoints related to Tankoubons.
     """
 
     def get_tankoubon_list(self, page: int | None = None) -> TankoubonListResponse:

@@ -3,7 +3,7 @@ from lanraragi_api.base.base import BaseAPICall, OperationResponse
 
 class ShinobuAPI(BaseAPICall):
     """
-    Control the built-in Background Worker.
+    Shinobu Filewatcher APIs.
     """
 
     def get_shinobu_status(self) -> dict:

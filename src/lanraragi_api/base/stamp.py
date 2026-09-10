@@ -24,7 +24,7 @@ class AddStampResponse(OperationResponse):
 
 class StampAPI(BaseAPICall):
     """
-    Stamp annotations API.
+    Stamps.
     """
 
     def get_stamped_pages(self, archive_id: str) -> StampsResponse:

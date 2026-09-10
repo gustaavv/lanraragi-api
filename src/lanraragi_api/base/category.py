@@ -13,7 +13,7 @@ class CategoryMetadata(BaseModel):
 
 class CategoryAPI(BaseAPICall):
     """
-    Everything dealing with Categories.
+    Endpoints related to Categories.
     """
 
     def get_all_categories(self) -> list[CategoryMetadata]:

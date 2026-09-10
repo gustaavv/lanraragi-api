@@ -49,7 +49,7 @@ class DatabaseBackup(DictLikeModel):
 
 class DatabaseAPI(BaseAPICall):
     """
-    Query and modify the database.
+    Database management APIs.
     """
 
     def get_tag_statistics(

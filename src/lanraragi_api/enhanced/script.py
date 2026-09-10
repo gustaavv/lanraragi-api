@@ -18,7 +18,7 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
     :param dirname: content folder
     :return:
     """
-    archives = api.archive.get_all_archives()
+    archives = api.archives.get_all_archives()
     map: dict[str, list[ArchiveMetadata]] = {}
     # possibly duplicate archive names
     for a in archives:
@@ -52,7 +52,7 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
             _, subfolder = os.path.split(root)
             update_count += 1
             a.set_artists([subfolder])
-            api.archive.update_archive_metadata(a.arcid, a)
+            api.archives.update_archive_metadata(a.arcid, a)
     print(f"archives skipped count: {skip_count} , updated count:  {update_count}")
 
 
@@ -63,11 +63,11 @@ def remove_all_categories(api: LANraragiAPI):
     :param api:
     :return:
     """
-    cs = api.category.get_all_categories()
+    cs = api.categories.get_all_categories()
     for c in cs:
         for aid in c.archives:
-            api.category.remove_archive_from_category(c.id, aid)
+            api.categories.remove_archive_from_category(c.id, aid)
         print(f"remove {len(c.archives)} from category {c.id}:{c.name}")
     for c in cs:
-        api.category.delete_category(c.id)
+        api.categories.delete_category(c.id)
     print(f"remove {len(cs)} categories")

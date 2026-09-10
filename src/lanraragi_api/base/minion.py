@@ -38,7 +38,7 @@ class FullJobStatus(BaseModel):
 
 class MinionAPI(BaseAPICall):
     """
-    Control the built-in Minion Job Queue.
+    Minion Job Queue APIs.
     """
 
     def get_basic_status(self, job_id: int | str) -> BasicJobStatus:
