@@ -33,15 +33,15 @@ test: test.unit ## Short for test.unit target
 .PHONY: test.unit
 test.unit: ## Run unit test
 	@echo "Run unit test"
-	@uv run pytest
+	@uv run pytest tests/unit
 
 .PHONY: test.integration
 test.integration: ## Run integration test
 	@echo "Run integration test"
 	@docker compose -f script/integration_test_setup/compose.yml down -v
-	@docker compose -f script/integration_test_setup/compose.yml up -d
+	@docker compose -f script/integration_test_setup/compose.yml up -d --quiet-pull
 	@uv run script/integration_test_setup/config_lrr.py --base-url http://localhost:33333 --lrr-container-name lrr_api_test_lrr
-	@uv run pytest
+	@uv run pytest tests/integration
 	@docker compose -f script/integration_test_setup/compose.yml down -v
 
 .PHONY: ci

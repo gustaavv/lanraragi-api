@@ -25,3 +25,4 @@ extend-exclude = ["*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = ["-ra", "-q"]
