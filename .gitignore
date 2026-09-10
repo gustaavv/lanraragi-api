@@ -10,3 +10,4 @@ __pycache__/
 .claude/settings.local.json
 CLAUDE.local.md
 bash.exe.stackdump
+.pytest_cache

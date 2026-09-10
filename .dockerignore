@@ -1,0 +1,41 @@
+# Python bytecode and caches
+**/__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Development / IDE settings
+.claude/
+.vscode/
+.idea/
+.github/
+*.swp
+*.swo
+
+# Git version control
+.git
+.gitignore
+
+# Local environment secrets (NEVER include these in an image)
+.env
+*.local
+secrets/
+
+# Large data, logs, or build artifacts
+*.log
+data/
+dist/
+build/
+*.egg-info/
+
+# Docker files
+.dockerignore
