@@ -1,0 +1,20 @@
+name: lrr_api_test
+
+services:
+  lrr:
+    image: difegue/lanraragi:v.0.9.81
+    container_name: lrr_api_test_lrr
+    ports:
+      - 33333:3000
+    # volumes:
+    #   - [YOUR_CONTENT_DIRECTORY]:/home/koyomi/lanraragi/content
+    #   - [YOUR_THUMBNAIL_DIRECTORY]:/home/koyomi/lanraragi/thumb
+    #   - [YOUR_DATABASE_DIRECTORY]:/home/koyomi/lanraragi/database
+
+    # copy the health check command from tools/build/docker/Dockerfile, and update the frequency
+    healthcheck:
+      test: "wget --quiet --tries=1 --no-check-certificate --spider -Y off http://127.0.0.1:3000 || exit 1"
+      interval: 5s
+      timeout: 3s
+      retries: 1
+
