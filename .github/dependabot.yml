@@ -14,14 +14,8 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
-  - package-ecosystem: "docker"
-    directory: "/tests"
-    schedule:
-      interval: "weekly"
-    cooldown:
-      default-days: 7
   - package-ecosystem: "docker-compose"
-    directory: "/tests"
+    directory: "/script/integration_test_setup"
     schedule:
       interval: "weekly"
     cooldown:
