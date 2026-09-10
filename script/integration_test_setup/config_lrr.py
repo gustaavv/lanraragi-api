@@ -20,11 +20,12 @@ sys.path.append(str(script_dir))
 
 
 import argparse
-import sys
-import requests
-from urllib.parse import urljoin
-from bs4 import BeautifulSoup
 import json
+import sys
+from urllib.parse import urljoin
+
+import requests
+from bs4 import BeautifulSoup
 from docker import restart, wait_for_healthy
 
 # endpoints to try (login & config)
@@ -54,7 +55,7 @@ def try_login(session: requests.Session, base_url: str, password: str):
         try:
             print(f"[*] Trying login POST -> {url}")
             r = session.post(url, data=data, allow_redirects=True, timeout=10)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"[!] Error connecting to {url}: {e}")
             continue
 
@@ -96,7 +97,7 @@ def fetch_config_form(session: requests.Session, base_url: str):
         try:
             print(f"[*] GET {url}")
             r = session.get(url, allow_redirects=True, timeout=10)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"[!] Error connecting to {url}: {e}")
             continue
 
@@ -192,7 +193,7 @@ def try_post_config(
         try:
             print(f"[*] POST to {url} ...")
             r = session.post(url, data=form_data, allow_redirects=True, timeout=15)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"[!] Error posting to {url}: {e}")
             continue
 
@@ -205,7 +206,7 @@ def try_post_config(
                 # Config.pm returns {"operation":"config","success":1,...}
                 if isinstance(obj, dict) and obj.get("operation") == "config":
                     return obj
-            except Exception:
+            except Exception:  # noqa: S110, BLE001
                 pass
 
         # If a redirect or a success page returned, heuristics:
@@ -216,7 +217,7 @@ def try_post_config(
                 # Try to parse JSON if present
                 try:
                     return r.json()
-                except Exception:
+                except Exception:  # noqa: BLE001
                     return {
                         "operation": "config",
                         "success": 1,
@@ -275,7 +276,7 @@ def main(args):
         if args.verbose:
             print("[*] Parsed form inputs (sample):")
             data = form_to_dict(form)
-            for k in sorted(list(data.keys()))[:20]:
+            for k in sorted(data.keys())[:20]:
                 print(f"   {k} = {data[k]}")
 
     # 3) Prepare data: parse existing or start from empty then set values

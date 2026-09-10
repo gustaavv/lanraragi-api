@@ -1,5 +1,5 @@
-import subprocess
 import json
+import subprocess
 import time
 
 
@@ -42,9 +42,9 @@ def wait_for_healthy(container_name, timeout=60, interval=1):
             container_info = json.loads(result.stdout)[0]
         except subprocess.CalledProcessError as e:
             # Container does not exist or docker command failed
-            raise Exception(f"Docker inspect failed: {e.stderr.strip()}") from e
+            raise Exception(f"Docker inspect failed: {e.stderr.strip()}") from e  # noqa: TRY002
         except (json.JSONDecodeError, IndexError) as e:
-            raise Exception(f"Failed to parse docker inspect output: {e}") from e
+            raise Exception(f"Failed to parse docker inspect output: {e}") from e  # noqa: TRY002
 
         # Extract health status
         health_status = container_info.get("State", {}).get("Health", {}).get("Status")
