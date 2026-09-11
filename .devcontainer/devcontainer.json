@@ -19,7 +19,14 @@
         "streetsidesoftware.code-spell-checker"
       ],
       "settings": {
+        "workbench.colorTheme": "Dark Modern",
         "files.autoSave": "onFocusChange",
+        "files.readonlyInclude": {
+          // python
+          "**/.venv/**": true,
+          "**/uv.lock": true,
+          "/usr/lib/python3.10/**": true
+        },
         // vscode-icons
         "workbench.iconTheme": "vscode-icons",
         "vsicons.dontShowNewVersionMessage": true,
