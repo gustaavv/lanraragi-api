@@ -8,8 +8,10 @@
   "postCreateCommand": "uv sync",
   "customizations": {
     "vscode": {
-      "extensions": [],
-      "settings": {}
+      "extensions": ["vscode-icons-team.vscode-icons"],
+      "settings": {
+        "workbench.iconTheme": "vscode-icons"
+      }
     }
   }
 }
