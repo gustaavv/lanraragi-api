@@ -5,12 +5,16 @@
     "dockerfile": "Dockerfile",
     "context": "."
   },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:4": {}
+  },
   "postCreateCommand": "uv sync",
   "customizations": {
     "vscode": {
       "extensions": ["vscode-icons-team.vscode-icons"],
       "settings": {
-        "workbench.iconTheme": "vscode-icons"
+        "workbench.iconTheme": "vscode-icons",
+        "vsicons.dontShowNewVersionMessage": true
       }
     }
   }
