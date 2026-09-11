@@ -11,10 +11,28 @@
   "postCreateCommand": "uv sync",
   "customizations": {
     "vscode": {
-      "extensions": ["vscode-icons-team.vscode-icons"],
+      "extensions": [
+        "vscode-icons-team.vscode-icons",
+        "mhutchie.git-graph",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "streetsidesoftware.code-spell-checker"
+      ],
       "settings": {
+        "files.autoSave": "onFocusChange",
+        // vscode-icons
         "workbench.iconTheme": "vscode-icons",
-        "vsicons.dontShowNewVersionMessage": true
+        "vsicons.dontShowNewVersionMessage": true,
+        // git
+        "git.autofetch": true,
+        "scm.defaultViewMode": "tree",
+        // python
+        "python.terminal.activateEnvironment": false,
+        // make
+        "[makefile]": {
+          "editor.insertSpaces": false,
+          "editor.detectIndentation": false
+        }
       }
     }
   }
