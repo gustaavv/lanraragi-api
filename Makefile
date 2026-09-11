@@ -46,3 +46,12 @@ test.integration: ## Run integration test
 
 .PHONY: ci
 ci: format-check lint test.unit test.integration ## Run CI process locally
+
+.PHONY: docs.gen
+docs.gen: ## Generate API docs
+	@uv run sphinx-apidoc -f -o docs/source src/lanraragi_api
+
+.PHONY: docs.build
+docs.build: ## Build docs
+	@uv run sphinx-build -M html "docs/source/" "docs/build/"
+
