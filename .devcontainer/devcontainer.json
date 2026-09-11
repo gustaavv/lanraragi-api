@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
+  "name": "lanraragi-api",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "postCreateCommand": "uv sync",
+  "customizations": {
+    "vscode": {
+      "extensions": [],
+      "settings": {}
+    }
+  }
+}
