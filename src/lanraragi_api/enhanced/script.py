@@ -8,15 +8,24 @@ from lanraragi_api.enhanced.server_side import compute_id, is_archive
 
 
 def subfolders_to_artists(api: LANraragiAPI, dirname: str):
-    """
-    Walk through dirname, and set artist tag for those archives without artist tag.
-    For every archive, the artist will be the name of its parent folder.
+    """Set the artist tag of archives to the name of their parent folder.
 
-    This function is similar to Subfolders to Categories, but has better performance.
+    Walks through ``dirname`` and, for every archive that has no artist tag
+    yet, sets its artist tag to the name of the subfolder holding it. Archives
+    that already have an artist tag are skipped.
 
-    :param api: LANrargiAPI instance
-    :param dirname: content folder
-    :return:
+    This function is similar to Subfolders to Categories, but has better
+    performance.
+
+    Args:
+        api: LANraragiAPI instance used to read and update the archives.
+        dirname: Content folder whose subfolders give the artist tags.
+
+    Note:
+        This function modifies archive metadata on the server. Archives are
+        looked up by title, and the archive ID is computed from the file only
+        when several archives share the same title. A summary of the skipped
+        and updated archives is printed.
     """
     archives = api.archives.get_all_archives()
     map: dict[str, list[ArchiveMetadata]] = {}
@@ -57,11 +66,18 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
 
 
 def remove_all_categories(api: LANraragiAPI):
-    """
-    For every category, remove all the archives it contains. After that, all the
-    categories are removed.
-    :param api:
-    :return:
+    """Remove every archive from every category, then delete the categories.
+
+    For every category, all the archives it contains are removed from it. After
+    that, all the categories are removed.
+
+    Args:
+        api: LANraragiAPI instance used to read and modify the categories.
+
+    Note:
+        Every category of the server is deleted. Removing the archives from a
+        category does not delete the archives themselves. The number of removed
+        archives and categories is printed.
     """
     cs = api.categories.get_all_categories()
     for c in cs:

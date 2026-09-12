@@ -9,13 +9,24 @@ class ArchiveFileError(Exception):
 
 
 def compute_id(file_path: str) -> str:
-    """
-    The archive id is determined only by the archive itself. So we can
-    compute it on client side as well.
+    """Compute the archive ID of a file the same way the server does.
 
-    see LANraragi/lib/LANraragi/Utils/Database.pm
-    :param file_path: the file to the archive
-    :return:
+    The ID of an archive is determined only by the archive itself, so it can be
+    computed on the client side as well.
+
+    Args:
+        file_path: Path of the archive file.
+
+    Returns:
+        str: Hexadecimal SHA-1 digest of the first 512 KB of the file.
+
+    Raises:
+        ArchiveFileError: If ``file_path`` is not a file, or if the file cannot
+            be opened or read.
+
+    Note:
+        The algorithm matches the server side implementation in
+        ``LANraragi/lib/LANraragi/Utils/Database.pm``.
     """
     if not os.path.isfile(file_path):
         raise ArchiveFileError(f"not a valid file path: {file_path}")
@@ -35,11 +46,19 @@ def compute_id(file_path: str) -> str:
 
 
 def is_archive(file_name):
-    """
+    """Check whether a file name has a supported archive extension.
 
-    see LANraragi/lib/LANraragi/Utils/Generic.pm
-    :param file_name:
-    :return:
+    Args:
+        file_name: File name to test.
+
+    Returns:
+        bool: True if the name ends with ``zip``, ``rar``, ``7z``, ``tar``,
+            ``tar.gz``, ``lzma``, ``xz``, ``cbz``, ``cbr``, ``cb7``, ``cbt``,
+            ``pdf`` or ``epub``, compared case-insensitively. False otherwise.
+
+    Note:
+        The list of extensions matches the server side implementation in
+        ``LANraragi/lib/LANraragi/Utils/Generic.pm``.
     """
     return (
         re.match(

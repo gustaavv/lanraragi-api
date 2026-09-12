@@ -15,6 +15,46 @@ from lanraragi_api.base.plugin import PluginAPI
 
 
 class LANraragiAPI:
+    """Entry point of the library, grouping every API section of a server.
+
+    Each attribute is an independent client for one group of endpoints, and all
+    of them share the connection settings passed to this class.
+
+    Args:
+        server: Base URL of the LANraragi server, with or without a trailing
+            slash.
+        key: API key sent with every request. Defaults to None, which sends no
+            credentials.
+        auth_way: How the API key is transmitted. Defaults to
+            ``Auth.AUTH_HEADER``.
+        timeout: Timeout applied to every request, either a single value or a
+            ``(connect, read)`` pair. Defaults to None, meaning no timeout.
+        include_error_payload: Whether ``APIOperationError`` carries the raw
+            response payload. Defaults to False.
+        include_operation_error_message: Whether ``APIOperationError`` carries
+            the error message reported by the server. Defaults to True.
+        raise_on_operation_error: Whether a failed operation raises
+            ``APIOperationError`` instead of being returned to the caller.
+            Defaults to False.
+        default_headers: Extra headers sent with every request. Defaults to
+            None, which sends no extra headers.
+        default_params: Extra query parameters sent with every request.
+            Defaults to None, which sends no extra parameters.
+
+    Attributes:
+        search (SearchAPI): Search endpoints.
+        archives (ArchiveAPI): Archive endpoints.
+        database (DatabaseAPI): Database endpoints.
+        categories (CategoryAPI): Category endpoints.
+        tankoubons (TankoubonAPI): Tankoubon endpoints.
+        plugins (PluginAPI): Plugin endpoints.
+        shinobu (ShinobuAPI): Shinobu endpoints.
+        minion (MinionAPI): Minion job endpoints.
+        opds (OPDSAPI): OPDS endpoints.
+        misc (MiscAPI): Miscellaneous endpoints.
+        stamps (StampAPI): Stamp endpoints.
+    """
+
     def __init__(
         self,
         server: str,

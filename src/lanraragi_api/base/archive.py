@@ -15,6 +15,25 @@ ARCHIVE_TAG_VALUES_SET = "ONLY_VALUES"
 
 
 class ArchiveMetadata(BaseModel):
+    """Metadata of a single Archive.
+
+    Attributes:
+        arcid: Unique identifier for the archive, a 40 character SHA1 hash.
+        extension: File extension of the archive.
+        filename: Filename of the archive.
+        isnew: Whether the archive is newly added. Defaults to None.
+        lastreadtime: Unix timestamp of when the archive was last read.
+        pagecount: Total number of pages in the archive.
+        progress: Reading progress, as a page number.
+        size: Size of the archive in bytes.
+        summary: Summary description of the archive. Defaults to None.
+        toc: Table of contents for the archive, as objects holding the ``page``
+            where a chapter starts and its ``name``. Defaults to None.
+        tags: Comma-separated list of tags associated with the archive, with
+            namespaced tags in ``namespace:value`` form.
+        title: Title of the archive.
+    """
+
     arcid: str = Field(...)
     extension: str = Field(...)
     filename: str = Field(...)
@@ -32,6 +51,16 @@ class ArchiveMetadata(BaseModel):
     title: str = Field(...)
 
     def __tags_to_dict(self) -> dict[str, list[str]]:
+        """Convert the ``tags`` string into a mapping of keys to values.
+
+        The string is split on commas. Tags written as ``key:value`` are
+        grouped under ``key``, allowing duplicate keys, while bare tags are
+        grouped under the ``ONLY_VALUES`` key.
+
+        Returns:
+            dict[str, list[str]]: One entry per tag key, holding its values in
+                order of appearance.
+        """
         tags = self.tags.split(",")
         ans = {}
         for t in tags:
@@ -53,8 +82,19 @@ class ArchiveMetadata(BaseModel):
         return ans
 
     def __dict_to_tags(self, json: dict[str, list[str]]):
-        """
-        The function will modify the object
+        """Write a mapping of tag keys to values back into ``tags``.
+
+        Keys other than ``ONLY_VALUES`` are written as ``key:value`` pairs,
+        while values of ``ONLY_VALUES`` are written as bare tags, all joined
+        with commas.
+
+        Args:
+            json: Mapping of tag keys to their values, in the shape returned
+                by ``__tags_to_dict``.
+
+        Note:
+            The function will modify the object: ``self.tags`` is replaced in
+            place.
         """
         tags = ""
         modified: bool = False
@@ -70,40 +110,84 @@ class ArchiveMetadata(BaseModel):
         self.tags = tags
 
     def get_artists(self) -> list[str]:
+        """Return the values of the ``artist`` tag.
+
+        Returns:
+            list[str]: Artist names found in ``tags``, in order of appearance.
+        """
         return self.__tags_to_dict()["artist"]
 
     def set_artists(self, artists: list[str]):
+        """Replace the ``artist`` tag with the given values.
+
+        The ``tags`` string of the model is modified in place, and the other
+        tag keys are kept.
+
+        Args:
+            artists: Artist names to store in the ``artist`` tag.
+        """
         json = self.__tags_to_dict()
         json["artist"] = artists
         self.__dict_to_tags(json)
 
     def remove_artists(self):
+        """Remove the ``artist`` tag.
+
+        The ``tags`` string of the model is modified in place, and the other
+        tag keys are kept.
+        """
         json = self.__tags_to_dict()
         json["artist"] = []
         self.__dict_to_tags(json)
 
     def has_artists(self) -> bool:
+        """Return whether the archive carries an ``artist`` tag.
+
+        Returns:
+            bool: True if the ``artist`` key appears in ``tags``.
+        """
         return "artist" in self.tags
 
 
 class ArchiveAPI(BaseAPICall):
-    """
-    Everything dealing with Archives.
+    """Everything dealing with Archives.
+
+    Shared request and error behavior is documented on ``BaseAPICall``.
     """
 
     def get_all_archives(self) -> list[ArchiveMetadata]:
-        """
-        Get the Archive Index in JSON form. This doesn't include Tankoubons by
-        design. You can use the IDs of this JSON with the other endpoints.
-        :return: list of archives
+        """Return a list of all Archives in the database.
+
+        This doesn't include Tankoubons by design. You can use the IDs of this
+        JSON with the other endpoints.
+
+        Returns:
+            list[ArchiveMetadata]: Metadata of every Archive in the database.
+
+        Raises:
+            APIHttpError: Any non-2xx status code returned by the server.
+            APIResponseDecodeError: If the response body is not a list of
+                objects matching ``ArchiveMetadata``.
         """
         return self.request_model_list("GET", "/api/archives", ArchiveMetadata)
 
     def get_archive(self, id: str) -> ArchiveMetadata | None:
-        """
-        Get Metadata (title, tags) for a given Archive using deprecated endpoint.
-        :param id: ID of the Archive to process.
-        :return: archive
+        """Get Metadata (title, tags) for a given Archive.
+
+        Args:
+            id: ID of the Archive to process.
+
+        Returns:
+            ArchiveMetadata | None: Metadata of the archive, or None when the
+                server answers with 400.
+
+        Raises:
+            APIHttpError: Any status code other than 200 and 400.
+
+        Note:
+            This endpoint is deprecated; use ``get_archive_metadata`` instead.
+            The 400 response, sent when no archive ID was given, is turned into
+            None instead of raising.
         """
         path = f"/api/archives/{id}"
         resp = self.request("GET", path, expected_statuses={200, 400})
@@ -113,11 +197,18 @@ class ArchiveAPI(BaseAPICall):
         return self.parse_model(ArchiveMetadata, payload, path)
 
     def get_untagged_archives(self) -> list[str]:
-        """
-        Get Archives that don't have any tags recorded. This follows the same
-        rules as the Batch Tagging filter and will include Archives that have
-        parody:, date_added:, series: or artist: tags.
-        :return: list of archive IDs
+        """Get Archives that don't have any tags recorded.
+
+        This follows the same rules as the Batch Tagging filter and will
+        include Archives that have parody:, date_added:, series: or artist:
+        tags.
+
+        Returns:
+            list[str]: IDs of the Archives that have no tags recorded.
+
+        Raises:
+            APIHttpError: Any non-2xx status code returned by the server.
+            APIResponseDecodeError: If the response body is not a list.
         """
         path = "/api/archives/untagged"
         payload = self.request_json("GET", path)
@@ -126,10 +217,21 @@ class ArchiveAPI(BaseAPICall):
         return payload
 
     def get_archive_metadata(self, id: str) -> ArchiveMetadata | None:
-        """
-        Get Metadata (title, tags) for a given Archive.
-        :param id: ID of the Archive to process.
-        :return: archive
+        """Get Metadata (title, tags) for a given Archive.
+
+        Args:
+            id: ID of the Archive to process.
+
+        Returns:
+            ArchiveMetadata | None: Metadata of the archive, or None when the
+                server answers with 400.
+
+        Raises:
+            APIHttpError: Any status code other than 200 and 400.
+
+        Note:
+            The 400 response, sent when no archive ID was given, is turned into
+            None instead of raising.
         """
         path = f"/api/archives/{id}/metadata"
         resp = self.request("GET", path, expected_statuses={200, 400})
@@ -139,10 +241,20 @@ class ArchiveAPI(BaseAPICall):
         return self.parse_model(ArchiveMetadata, payload, path)
 
     def get_archive_categories(self, id: str) -> list[CategoryMetadata]:
-        """
-        Get all the Categories which currently refer to this Archive ID.
-        :param id: ID of the Archive to process.
-        :return: list of category metadata
+        """Get all the Categories which currently refer to this Archive ID.
+
+        Args:
+            id: ID of the Archive to process.
+
+        Returns:
+            list[CategoryMetadata]: Metadata of every Category referring to
+                this Archive.
+
+        Raises:
+            APIHttpError: 400 if no archive ID was given, or any other non-2xx
+                status code.
+            APIResponseDecodeError: If the response has no ``categories`` list,
+                or if an item does not match ``CategoryMetadata``.
         """
         path = f"/api/archives/{id}/categories"
         payload = self.request_json("GET", path)
@@ -152,12 +264,20 @@ class ArchiveAPI(BaseAPICall):
         return [self.parse_model(CategoryMetadata, c, path) for c in clist]
 
     def get_archive_tankoubons(self, id: str) -> list[str]:
-        """
-        Get all the Tankoubons which currently refer to this Archive ID.
+        """Get all the Tankoubons which currently refer to this Archive ID.
 
-        Tankoubon: 単行本
-        :param id: ID of the Archive to process.
-        :return: list of tankoubon ids
+        Tankoubon (単行本) is the Japanese term for a bound volume.
+
+        Args:
+            id: ID of the Archive to process.
+
+        Returns:
+            list[str]: IDs of the Tankoubons referring to this Archive.
+
+        Raises:
+            APIHttpError: 400 if no archive ID was given, or any other non-2xx
+                status code.
+            APIResponseDecodeError: If the response has no ``tankoubons`` list.
         """
         path = f"/api/archives/{id}/tankoubons"
         payload = self.request_json("GET", path)
@@ -169,22 +289,33 @@ class ArchiveAPI(BaseAPICall):
     def get_archive_thumbnail(
         self, id: str, page: int = 1, no_fallback: bool | None = None
     ) -> Response:
-        """
-        Get a Thumbnail image for a given Archive. This endpoint will return
-        a placeholder image if it doesn't already exist.
+        """Get a Thumbnail image for a given Archive.
 
-        If you want to queue generation of the thumbnail in the background,
-        you can use the no_fallback query parameter. This will give you a
+        This endpoint will return a placeholder image if it doesn't already
+        exist. If you want to queue generation of the thumbnail in the
+        background, use the ``no_fallback`` parameter: you will get a
         background job ID instead of the placeholder.
 
-        :param id: ID of the Archive to process.
-        :param page: Specify which page you want to get a thumbnail for.
-        Defaults to the cover, aka page 1.
-        :param no_fallback: Disables the placeholder image, queues the
-        thumbnail for extraction and returns a JSON with code 202. This
-        parameter does nothing if the image already exists. (You will get the
-        image with code 200 no matter what)
-        :return: the response object
+        Args:
+            id: ID of the Archive to process.
+            page: Specify which page you want to get a thumbnail for. Defaults
+                to 1, the cover.
+            no_fallback: Disables the placeholder image, queues the thumbnail
+                for extraction and returns a JSON with code 202. This parameter
+                does nothing if the image already exists. (You will get the
+                image with code 200 no matter what) Defaults to None.
+
+        Returns:
+            Response: Response of the server, either the thumbnail bytes with
+                code 200 or the job JSON with code 202.
+
+        Raises:
+            APIHttpError: 400 if no archive ID was given, or any other non-2xx
+                status code.
+
+        Note:
+            A queued extraction returns a Minion job ID; use
+            ``/api/minion/:jobid`` to track when the thumbnail is ready.
         """
         no_fallback_value = None
         if no_fallback is not None:
@@ -199,9 +330,10 @@ class ArchiveAPI(BaseAPICall):
     def queue_extraction_of_page_thumbnails(
         self, id: str, force: bool = False
     ) -> MinionJobResponse:
-        """
-        Create thumbnails for every page of a given Archive. This endpoint will
-        queue generation of the thumbnails in the background.
+        """Create thumbnails for every page of a given Archive.
+
+        This endpoint will queue generation of the thumbnails in the
+        background.
 
         If all thumbnails are detected as already existing, the call will
         return HTTP code 200.
@@ -209,10 +341,26 @@ class ArchiveAPI(BaseAPICall):
         This endpoint can be called multiple times -- If a thumbnailing job is
         already in progress for the given ID, it'll just give you the ID for
         that ongoing job.
-        :param id: ID of the Archive to process.
-        :param force: Whether to force regeneration of all thumbnails even if
-        they already exist.
-        :return: operation result
+
+        Args:
+            id: ID of the Archive to process.
+            force: Whether to force regeneration of all thumbnails even if they
+                already exist. Defaults to False.
+
+        Returns:
+            MinionJobResponse: Result of the operation, with the ID of the
+                queued or ongoing Minion job in ``job``.
+
+        Raises:
+            APIResponseDecodeError: If the response body is not valid JSON, or
+                does not match ``MinionJobResponse``.
+            APIOperationError: If the operation failed and raising is enabled.
+
+        Note:
+            The ``job`` field is None when all thumbnails already exist and the
+            server answers with code 200 instead of queueing a job. A 400
+            response is returned in the operation result, with ``success`` set
+            to 0, instead of raising.
         """
         return self.request_operation(
             "POST",
@@ -222,112 +370,196 @@ class ArchiveAPI(BaseAPICall):
         )
 
     def download_archive(self, id: str) -> Response:
-        """
-        Download an Archive from the server.
+        """Download an Archive from the server.
 
-        :param id: ID of the Archive to download.
-        :return: the response object
+        Args:
+            id: ID of the Archive to download.
+
+        Returns:
+            Response: Response of the server carrying the archive file.
+
+        Raises:
+            APIHttpError: 400 if no archive ID was given, or any other non-2xx
+                status code.
         """
         return self.request("GET", f"/api/archives/{id}/download")
 
     def extract_archive(self, id: str, force: bool = False) -> dict:
-        """
-        Get a list of URLs pointing to the images contained in an archive.
+        """Get a list of URLs pointing to the images contained in an archive.
+
         If necessary, this endpoint also launches a background Minion job to
         extract the archive so it is ready for reading.
 
-        :param id: ID of the Archive to process.
-        :param force: Force a full background re-extraction of the Archive.
-        Existing cached files might still be used in subsequent
-        /api/archives/:id/page calls until the Archive is fully re-extracted.
-        :return: operation result
+        Args:
+            id: ID of the Archive to process.
+            force: Force a full background re-extraction of the Archive.
+                Existing cached files might still be used in subsequent
+                ``/api/archives/:id/page`` calls until the Archive is fully
+                re-extracted. Defaults to False.
+
+        Returns:
+            dict: Decoded response, with the page URLs in ``pages`` and the ID
+                of the background extract job in ``job``.
+
+        Raises:
+            APIHttpError: 400 if no archive ID was given, or any other non-2xx
+                status code.
         """
         return self.request_json(
             "GET", f"/api/archives/{id}/files", params={"force": force}
         )
 
     def add_archive_toc(self, id: str, page: int, title: str) -> OperationResponse:
-        """
-        Add a Table of Contents entry for an archive.
-        :param id: ID of the Archive to process.
-        :param page: Page number where the chapter starts.
-        :param title: Chapter title.
-        :return: operation result
+        """Add an entry to the Table of Contents of a given Archive.
+
+        The ToC is stored as a JSON-encoded key-value array mapping a page to a
+        title for the chapter/section starting at that page.
+
+        Args:
+            id: ID of the Archive to process.
+            page: Page number where the chapter/section starts.
+            title: Title of the chapter/section.
+
+        Returns:
+            OperationResponse: Result of the operation.
+
+        Raises:
+            APIResponseDecodeError: If the response body is not valid JSON, or
+                does not match ``OperationResponse``.
+            APIOperationError: If the operation failed and raising is enabled.
+
+        Note:
+            Failure responses such as 400 (error response) or 423 (locked
+            resource) are returned in the operation result, with ``success``
+            set to 0, instead of raising.
         """
         return self.request_operation(
             "PUT", f"/api/archives/{id}/toc", params={"page": page, "title": title}
         )
 
     def delete_archive_toc(self, id: str, page: int) -> OperationResponse:
-        """
-        Delete a Table of Contents entry for an archive.
-        :param id: ID of the Archive to process.
-        :param page: Page number of the chapter entry to remove.
-        :return: operation result
+        """Delete an entry from the Table of Contents of a given Archive.
+
+        Args:
+            id: ID of the Archive to process.
+            page: Page number of the chapter/section to delete.
+
+        Returns:
+            OperationResponse: Result of the operation.
+
+        Raises:
+            APIResponseDecodeError: If the response body is not valid JSON, or
+                does not match ``OperationResponse``.
+            APIOperationError: If the operation failed and raising is enabled.
+
+        Note:
+            Failure responses such as 400 (error response) or 423 (locked
+            resource) are returned in the operation result, with ``success``
+            set to 0, instead of raising.
         """
         return self.request_operation(
             "DELETE", f"/api/archives/{id}/toc", params={"page": page}
         )
 
     def get_archive_page(self, id: str, path: str) -> Response:
-        """
-        Get a specific image page from an archive.
-        :param id: ID of the Archive to process.
-        :param path: Path to the image in extracted archive files.
-        :return: the response object
+        """Get an archive page.
+
+        This call is mainly used alongside ``/api/archives/files``.
+
+        Args:
+            id: ID of the Archive to download.
+            path: Path to the image in the extracted archive files.
+
+        Returns:
+            Response: Response of the server carrying the image.
+
+        Raises:
+            APIHttpError: 400 if no archive ID was given, or any other non-2xx
+                status code.
         """
         return self.request("GET", f"/api/archives/{id}/page", params={"path": path})
 
     def set_archive_new_flag(self, id: str) -> OperationResponse:
-        """
-        Sets/restores the "New!" flag on an archive.
+        """Set or restore the "New!" flag on an archive.
 
-        :param id: ID of the Archive to process.
-        :return: operation result
+        Args:
+            id: ID of the Archive to process.
+
+        Returns:
+            OperationResponse: Result of the operation.
+
+        Raises:
+            APIResponseDecodeError: If the response body is not valid JSON, or
+                does not match ``OperationResponse``.
+            APIOperationError: If the operation failed and raising is enabled.
+
+        Note:
+            Failure responses such as 400 (error response) or 423 (locked
+            resource) are returned in the operation result, with ``success``
+            set to 0, instead of raising.
         """
         return self.request_operation("PUT", f"/api/archives/{id}/isnew")
 
     def clear_archive_new_flag(self, id: str) -> OperationResponse:
-        """
-        Clears the "New!" flag on an archive.
+        """Clear the "New!" flag on an archive.
 
-        :param id: ID of the Archive to process.
-        :return: operation result
+        Args:
+            id: ID of the Archive to process.
+
+        Returns:
+            OperationResponse: Result of the operation.
+
+        Raises:
+            APIResponseDecodeError: If the response body is not valid JSON, or
+                does not match ``OperationResponse``.
+            APIOperationError: If the operation failed and raising is enabled.
+
+        Note:
+            Failure responses such as 400 (error response) or 423 (locked
+            resource) are returned in the operation result, with ``success``
+            set to 0, instead of raising.
         """
         return self.request_operation("DELETE", f"/api/archives/{id}/isnew")
 
     def update_reading_progression(self, id: str, page: int) -> OperationResponse:
-        """
-        Tell the server which page of this Archive you're currently
-        showing/reading, so that it updates its internal reading progression
-        accordingly.
+        """Tell the server which page of this Archive you are currently reading.
 
         This endpoint will also update the date this Archive was last read,
         using the current server timestamp.
 
         You should call this endpoint only when you're sure the user is
-        currently reading the page you present.
+        currently reading the page you present. Don't use it when preloading
+        images off the server.
 
-        Don't use it when preloading images off the server.
-
-        Whether to make reading progression regressible or not is up to
-         the client. (The web client will reduce progression if the user
-         starts reading previous pages)
+        Whether to make reading progression regressible or not is up to the
+        client. (The web client will reduce progression if the user starts
+        reading previous pages)
 
         Consider however removing the "New!" flag from an archive when you
-        start updating its progress - The web client won't display any
-        reading progression if the new flag is still set.
+        start updating its progress - The web client won't display any reading
+        progression if the new flag is still set.
 
-        ⚠ If the server is configured to use clientside progress tracking,
-        this API call will return an error!
+        Args:
+            id: ID of the Archive to process.
+            page: Current page to update the reading progress to. Must be a
+                positive integer, and inferior or equal to the total page
+                number of the archive.
 
-        Make sure to check using /api/info whether the server tracks reading
-        progression or not before calling this endpoint.
-        :param id: ID of the Archive to process
-        :param page: Current page to update the reading progress to. Must be
-        a positive integer, and inferior or equal to the total page number of
-        the archive.
-        :return: operation result
+        Returns:
+            OperationResponse: Result of the operation.
+
+        Raises:
+            APIResponseDecodeError: If the response body is not valid JSON, or
+                does not match ``OperationResponse``.
+            APIOperationError: If the operation failed and raising is enabled.
+
+        Note:
+            Failure responses such as 400 (error response), 401 (authentication
+            required) or 423 (locked resource) are returned in the operation
+            result, with ``success`` set to 0, instead of raising.
+            If the server is configured to use clientside progress tracking,
+            this API call returns an error. Check with ``/api/info`` whether
+            the server tracks reading progression before calling this endpoint.
         """
         return self.request_operation("PUT", f"/api/archives/{id}/progress/{page}")
 
@@ -340,21 +572,40 @@ class ArchiveAPI(BaseAPICall):
         category_id: str | None = None,
         file_checksum: str | None = None,
     ) -> OperationResponse:
-        """
-        Upload an Archive to the server.
+        """Upload an Archive to the server.
 
         If a SHA1 checksum of the Archive is included, the server will perform
         an optional in-transit, file integrity validation, and reject the
         upload if the server-side checksum does not match.
-        :param archive_path: filepath of the archive
-        :param title: Title of the Archive.
-        :param tags: Set of tags you want to insert in the database alongside
-        the archive.
-        :param summary: summary
-        :param category_id: Category ID you'd want the archive to be added to.
-        :param file_checksum: SHA1 checksum of the archive for in-transit
-        validation.
-        :return: operation result
+
+        Args:
+            archive_path: Path of the archive file to upload.
+            title: Title of the Archive. Defaults to None.
+            tags: Set of tags you want to insert in the database alongside the
+                archive. Defaults to None.
+            summary: Summary of the Archive. Defaults to None.
+            category_id: Category ID you'd want the archive to be added to.
+                Defaults to None.
+            file_checksum: SHA1 checksum of the archive for in-transit
+                validation. Defaults to None.
+
+        Returns:
+            OperationResponse: Result of the operation, with the ID of the
+                uploaded Archive in the extra ``id`` field.
+
+        Raises:
+            FileNotFoundError: If ``archive_path`` does not point to a file.
+            APIResponseDecodeError: If the response body is not valid JSON, or
+                does not match ``OperationResponse``.
+            APIOperationError: If the operation failed and raising is enabled.
+
+        Note:
+            Uploading an archive that already exists is reported with a 409
+            response, whose body carries the reason in the ``error`` field.
+            Other failure responses, such as 415 (unsupported file), 417
+            (checksum mismatch) or 422 (unprocessable entity), are returned in
+            the operation result, with ``success`` set to 0, instead of
+            raising.
         """
         # deal with windows path separator
         archive_path = archive_path.replace("\\", "/")
@@ -383,13 +634,27 @@ class ArchiveAPI(BaseAPICall):
             )
 
     def update_thumbnail(self, id: str, page: int = 1) -> OperationResponse:
-        """
-        Update the cover thumbnail for the given Archive. You can specify a
-        page number to use as the thumbnail, or you can use the default
-        thumbnail.
-        :param id: ID of the Archive to process.
-        :param page: Page you want to make the thumbnail out of. Defaults to 1.
-        :return: operation result
+        """Update the cover thumbnail for the given Archive.
+
+        You can specify a page number to use as the thumbnail, or you can use
+        the default thumbnail.
+
+        Args:
+            id: ID of the Archive to process.
+            page: Page you want to make the thumbnail out of. Defaults to 1.
+
+        Returns:
+            OperationResponse: Result of the operation, with the path of the
+                new thumbnail in the extra ``new_thumbnail`` field.
+
+        Raises:
+            APIResponseDecodeError: If the response body is not valid JSON, or
+                does not match ``OperationResponse``.
+            APIOperationError: If the operation failed and raising is enabled.
+
+        Note:
+            A 400 response is returned in the operation result, with ``success``
+            set to 0, instead of raising.
         """
         return self.request_operation(
             "PUT", f"/api/archives/{id}/thumbnail", params={"page": page}
@@ -404,17 +669,35 @@ class ArchiveAPI(BaseAPICall):
         tags: str | None = None,
         summary: str | None = None,
     ) -> OperationResponse:
-        """
-        Update tags, title and summary for the given Archive.
-        :param id: ID of the Archive to process.
-        :param archive: Optional backward-compatible metadata object.
-        :param title: Archive title to set. If omitted and archive is provided,
-        uses archive.title.
-        :param tags: Archive tags string to set. If omitted and archive is
-        provided, uses archive.tags.
-        :param summary: Archive summary to set. If omitted and archive is
-        provided, uses archive.summary.
-        :return: operation result
+        """Update tags, title and summary for the given Archive.
+
+        Data supplied to the server through this method will overwrite the
+        previous data.
+
+        Args:
+            id: ID of the Archive to process.
+            archive: Optional backward-compatible metadata object, used to fill
+                ``title``, ``tags`` or ``summary`` when they are omitted.
+                Defaults to None.
+            title: Archive title to set. If omitted and ``archive`` is
+                provided, ``archive.title`` is used. Defaults to None.
+            tags: Archive tags string to set. If omitted and ``archive`` is
+                provided, ``archive.tags`` is used. Defaults to None.
+            summary: Archive summary to set. If omitted and ``archive`` is
+                provided, ``archive.summary`` is used. Defaults to None.
+
+        Returns:
+            OperationResponse: Result of the operation.
+
+        Raises:
+            APIResponseDecodeError: If the response body is not valid JSON, or
+                does not match ``OperationResponse``.
+            APIOperationError: If the operation failed and raising is enabled.
+
+        Note:
+            Failure responses such as 400 (error response) or 423 (locked
+            resource) are returned in the operation result, with ``success``
+            set to 0, instead of raising.
         """
         if archive is not None:
             if title is None:
@@ -431,11 +714,24 @@ class ArchiveAPI(BaseAPICall):
         )
 
     def delete_archive(self, id: str) -> OperationResponse:
-        """
-        Delete both the archive metadata and the file stored on the server.
+        """Delete both the archive metadata and the file stored on the server.
 
-        🙏 Please ask your user for confirmation before invoking this endpoint.
-        :param id: ID of the Archive to process.
-        :return: operation result
+        Please ask your user for confirmation before invoking this endpoint.
+
+        Args:
+            id: ID of the Archive to process.
+
+        Returns:
+            OperationResponse: Result of the operation.
+
+        Raises:
+            APIResponseDecodeError: If the response body is not valid JSON, or
+                does not match ``OperationResponse``.
+            APIOperationError: If the operation failed and raising is enabled.
+
+        Note:
+            Failure responses such as 400 (error response) or 423 (locked
+            resource) are returned in the operation result, with ``success``
+            set to 0, instead of raising.
         """
         return self.request_operation("DELETE", f"/api/archives/{id}")
