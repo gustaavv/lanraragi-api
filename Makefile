@@ -61,7 +61,7 @@ docs.gen-check: docs.gen ## Check that generated API docs are in sync with the c
 	@echo "✅ API docs are up to date."
 
 .PHONY: docs.build
-docs.build: ## Build docs
+docs.build: docs.gen-check ## Build docs
 	@uv run sphinx-build -M html "docs/source/" "docs/build/"
 
 .PHONY: ci
