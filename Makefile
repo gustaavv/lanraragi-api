@@ -1,5 +1,6 @@
 SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
+MAKEFLAGS += --no-print-directory
 
 
 .PHONY: help
@@ -38,6 +39,7 @@ test.unit: ## Run unit test
 .PHONY: test.integration
 test.integration: ## Run integration test
 	@echo "Run integration test"
+	@$(MAKE) tools.check TOOL=docker
 	@docker compose -f script/integration_test_setup/compose.yml down -v
 	@docker compose -f script/integration_test_setup/compose.yml up -d --quiet-pull
 	@uv run script/integration_test_setup/config_lrr.py --base-url http://localhost:33333 --lrr-container-name lrr_api_test_lrr
@@ -66,3 +68,14 @@ docs.build: docs.gen-check ## Build docs
 
 .PHONY: ci
 ci: format-check lint docs.gen-check test.unit test.integration ## Run CI process locally
+
+.PHONY: tools.check
+tools.check:
+	@if [ -z "$(TOOL)" ]; then \
+		echo "ERROR: TOOL is required. Usage: make tools.check TOOL=<tool-name>" >&2; \
+		exit 1; \
+	fi
+	@if ! command -v "$(TOOL)" >/dev/null 2>&1; then \
+		echo "$(TOOL) not found."; \
+		exit 1; \
+	fi
