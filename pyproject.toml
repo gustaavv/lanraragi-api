@@ -17,7 +17,7 @@ dev = [
     "beautifulsoup4==4.15.0",
     "pytest==9.1.1",
     "pytest-cov==7.1.0",
-    "ruff==0.16.5",
+    "ruff==0.16.6",
 ]
 docs = ["sphinx==8.1.3"]
 
