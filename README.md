@@ -1,5 +1,10 @@
 # lanraragi-api
 
+[![PyPI](https://img.shields.io/pypi/v/lanraragi_api.svg)](https://pypi.org/project/lanraragi_api/)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-2ea44f?logo=github)](https://gustaavv.github.io/lanraragi-api/)
+[![License](https://img.shields.io/github/license/gustaavv/lanraragi-api.svg)](https://github.com/gustaavv/lanraragi-api/blob/master/LICENSE)
+[![CI](https://github.com/gustaavv/lanraragi-api/actions/workflows/ci.yml/badge.svg)](https://github.com/gustaavv/lanraragi-api/actions/workflows/ci.yml)
+
 A Python library for [LANraragi](https://github.com/Difegue/LANraragi) API.
 
 > Many thanks to the author of this wonderful manga server.
