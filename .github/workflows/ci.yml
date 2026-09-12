@@ -39,8 +39,8 @@ jobs:
         run: make docs.gen-check
 
       - name: Unit test
-        run: make test.unit
+        run: make test.unit PYTEST_OPTS="--cov-report=markdown-append:$GITHUB_STEP_SUMMARY"
 
       - name: Integration test
-        run: make test.integration
+        run: make test.integration PYTEST_OPTS="--cov-report=markdown-append:$GITHUB_STEP_SUMMARY"
 
