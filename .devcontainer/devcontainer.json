@@ -8,7 +8,7 @@
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:4": {}
   },
-  "postCreateCommand": "uv sync",
+  "postCreateCommand": "uv sync --group={dev,docs}",
   "customizations": {
     "vscode": {
       "extensions": [

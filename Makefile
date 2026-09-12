@@ -44,5 +44,25 @@ test.integration: ## Run integration test
 	@uv run pytest tests/integration
 	@docker compose -f script/integration_test_setup/compose.yml down -v
 
+.PHONY: docs.gen
+docs.gen: ## Generate API docs
+	@uv run sphinx-apidoc -f -o docs/source src/lanraragi_api
+
+.PHONY: docs.gen-check
+docs.gen-check: docs.gen ## Check that generated API docs are in sync with the code
+	@git add -N docs/source
+	@if ! git diff --quiet -- docs/source; then \
+		echo "❌ API docs are out of sync with the code."; \
+		echo "   Run 'make docs.gen' and commit the changes."; \
+		echo; \
+		git diff --stat -- docs/source; \
+		exit 1; \
+	fi
+	@echo "✅ API docs are up to date."
+
+.PHONY: docs.build
+docs.build: docs.gen-check ## Build docs
+	@uv run sphinx-build -M html "docs/source/" "docs/build/"
+
 .PHONY: ci
-ci: format-check lint test.unit test.integration ## Run CI process locally
+ci: format-check lint docs.gen-check test.unit test.integration ## Run CI process locally
