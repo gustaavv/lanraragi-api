@@ -27,7 +27,7 @@ jobs:
         uses: ./.github/actions/python-uv-setup
 
       - name: Install the project
-        run: uv sync --locked --all-extras --group={dev,docs}
+        run: make install UV_OPTS="--locked --all-extras"
 
       - name: Format check
         run: make format-check

@@ -8,6 +8,14 @@ help: ## Show dynamic help for available targets
 	@echo "Available targets:"
 	@sh -c 'awk '\''BEGIN {FS = ":.*## "} /^[a-zA-Z0-9_.%\/-]+:.*## / {printf "  %-22s %s\n", $$1, $$2}'\'' $(MAKEFILE_LIST)'
 
+.PHONY: install
+install: ## Install all the project dependencies. Use UV_OPTS for additional options.
+	uv sync --group={dev,docs} $(UV_OPTS)
+
+.PHONY: install.docs
+install.docs: ## Install only the docs dependencies. Use UV_OPTS for additional options.
+	uv sync --only-group docs $(UV_OPTS)
+
 .PHONY: format
 format: ## Format code using ruff
 	@echo "Formatting code with ruff..."
@@ -32,12 +40,12 @@ lint-fix: ## Lint code and automatically fix issues using ruff
 test: test.unit ## Short for test.unit target
 
 .PHONY: test.unit
-test.unit: ## Run unit test
+test.unit: ## Run unit test. Use PYTEST_OPTS for additional options.
 	@echo "Run unit test"
 	@uv run pytest $(PYTEST_OPTS) tests/unit
 
 .PHONY: test.integration
-test.integration: ## Run integration test
+test.integration: ## Run integration test. Use PYTEST_OPTS for additional options.
 	@echo "Run integration test"
 	@$(MAKE) tools.check TOOL=docker
 	@docker compose -f script/integration_test_setup/compose.yml down -v

@@ -20,7 +20,7 @@ jobs:
         uses: ./.github/actions/python-uv-setup
       
       - name: Install the project
-        run: uv sync --locked --only-group docs
+        run: make install.docs UV_OPTS="--locked"
 
       - name: Build docs
         run: make docs.build
