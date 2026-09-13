@@ -72,3 +72,27 @@ jobs:
           path: docs/build/html/coverage/integration
           if-no-files-found: error
           retention-days: 7
+
+      - name: Generate combined coverage report
+        run: make test.coverage.combined
+
+      - name: Upload combined coverage report
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-combined-${{ steps.commit.outputs.short_sha }}
+          path: docs/build/html/coverage/combined
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Generate coverage badge
+        run: make test.coverage.badge
+
+      - name: Upload coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-badge-${{ steps.commit.outputs.short_sha }}
+          path: docs/build/html/coverage-badge.svg
+          if-no-files-found: error
+          retention-days: 7

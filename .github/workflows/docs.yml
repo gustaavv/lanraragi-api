@@ -63,6 +63,22 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Download combined coverage report
+        uses: actions/download-artifact@v8
+        with:
+          name: coverage-combined-${{ steps.commit.outputs.short_sha }}
+          path: docs/build/html/coverage/combined
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download coverage badge
+        uses: actions/download-artifact@v8
+        with:
+          name: coverage-badge-${{ steps.commit.outputs.short_sha }}
+          path: docs/build/html
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
