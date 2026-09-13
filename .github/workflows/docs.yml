@@ -20,9 +20,9 @@ jobs:
         uses: ./.github/actions/python-uv-setup
       
       - name: Install the project
-        run: make install.docs UV_OPTS="--locked"
+        run: make install UV_OPTS="--locked"
 
-      - name: Build docs
+      - name: Build docs with coverage reports
         run: make docs.build
 
       - name: Upload Pages artifact

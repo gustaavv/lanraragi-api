@@ -60,19 +60,30 @@ docs.gen: ## Generate API docs
 
 .PHONY: docs.gen-check
 docs.gen-check: docs.gen ## Check that generated API docs are in sync with the code
-	@git add -N docs/source
-	@if ! git diff --quiet -- docs/source; then \
+	@git add -N 'docs/source/*.rst'
+	@if ! git diff --quiet -- 'docs/source/*.rst'; then \
 		echo "❌ API docs are out of sync with the code."; \
 		echo "   Run 'make docs.gen' and commit the changes."; \
 		echo; \
-		git diff --stat -- docs/source; \
+		git diff --stat -- 'docs/source/*.rst'; \
 		exit 1; \
 	fi
 	@echo "✅ API docs are up to date."
 
+DOCS_COVERAGE_DIR := docs/build/html/coverage
+
+.PHONY: docs.coverage
+docs.coverage: ## Generate the HTML test coverage reports served by the docs. Use PYTEST_OPTS for additional options.
+	@rm -rf $(DOCS_COVERAGE_DIR)
+	@echo "Generate unit test coverage report"
+	@$(MAKE) test.unit PYTEST_OPTS="$(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/unit"
+	@echo "Generate integration test coverage report"
+	@$(MAKE) test.integration PYTEST_OPTS="$(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/integration"
+
 .PHONY: docs.build
-docs.build: docs.gen-check ## Build docs
+docs.build: docs.gen-check ## Build docs, including the test coverage reports. Use PYTEST_OPTS for additional options.
 	@uv run sphinx-build -M html "docs/source/" "docs/build/"
+	@$(MAKE) docs.coverage
 
 .PHONY: ci
 ci: format-check lint docs.gen-check test.unit test.integration ## Run CI process locally
