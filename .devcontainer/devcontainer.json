@@ -16,6 +16,8 @@
         "mhutchie.git-graph",
         "ms-python.python",
         "ms-python.vscode-pylance",
+        "-ms-python.debugpy",
+        "-ms-python.vscode-python-envs",
         "streetsidesoftware.code-spell-checker"
       ],
       "settings": {
