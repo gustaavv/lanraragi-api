@@ -24,6 +24,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
+      - name: Set short commit hash
+        id: commit
+        run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
       - name: Setup Python and uv
         uses: ./.github/actions/python-uv-setup
 
@@ -49,7 +53,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-unit
+          name: coverage-unit-${{ steps.commit.outputs.short_sha }}
           path: docs/build/html/coverage/unit
           if-no-files-found: error
           retention-days: 7
@@ -64,7 +68,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-integration
+          name: coverage-integration-${{ steps.commit.outputs.short_sha }}
           path: docs/build/html/coverage/integration
           if-no-files-found: error
           retention-days: 7

@@ -30,6 +30,14 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
+      # github.sha points at the default branch on workflow_run events, so the
+      # short hash has to come from the triggering run's head_sha instead.
+      - name: Set short commit hash
+        id: commit
+        env:
+          COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: echo "short_sha=${COMMIT_SHA::7}" >> $GITHUB_OUTPUT
+
       - name: Setup Python and uv
         uses: ./.github/actions/python-uv-setup
 
@@ -42,7 +50,7 @@ jobs:
       - name: Download unit coverage report
         uses: actions/download-artifact@v8
         with:
-          name: coverage-unit
+          name: coverage-unit-${{ steps.commit.outputs.short_sha }}
           path: docs/build/html/coverage/unit
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -50,7 +58,7 @@ jobs:
       - name: Download integration coverage report
         uses: actions/download-artifact@v8
         with:
-          name: coverage-integration
+          name: coverage-integration-${{ steps.commit.outputs.short_sha }}
           path: docs/build/html/coverage/integration
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
