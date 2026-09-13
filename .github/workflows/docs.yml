@@ -1,7 +1,10 @@
 name: Build and Deploy Docs
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Continuous Integration"]
+    types:
+      - completed
     branches:
       - master
 
@@ -11,19 +14,46 @@ concurrency:
 
 jobs:
   build:
+    # workflow_run also fires for runs on other repositories (a fork branch named
+    # master passes the branches filter), hence the head_repository guard.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Setup Python and uv
         uses: ./.github/actions/python-uv-setup
-      
-      - name: Install the project
+
+      - name: Install the docs dependencies
         run: make install.docs UV_OPTS="--locked"
 
       - name: Build docs
         run: make docs.build
+
+      - name: Download unit coverage report
+        uses: actions/download-artifact@v8
+        with:
+          name: coverage-unit
+          path: docs/build/html/coverage/unit
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download integration coverage report
+        uses: actions/download-artifact@v8
+        with:
+          name: coverage-integration
+          path: docs/build/html/coverage/integration
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

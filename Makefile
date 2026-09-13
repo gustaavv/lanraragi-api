@@ -2,6 +2,13 @@ SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 MAKEFLAGS += --no-print-directory
 
+DOCS_SOURCE_DIR := docs/source
+DOCS_TARGET_DIR := docs/build
+# Coverage reports go straight into the docs output so that they ship in the same
+# artifact: `make test.unit` / `test.integration` fill them in, `make docs.build`
+# reuses them, and the docs workflow downloads CI's artifacts back into this directory.
+DOCS_COVERAGE_DIR := $(DOCS_TARGET_DIR)/html/coverage
+
 
 .PHONY: help
 help: ## Show dynamic help for available targets
@@ -9,11 +16,11 @@ help: ## Show dynamic help for available targets
 	@sh -c 'awk '\''BEGIN {FS = ":.*## "} /^[a-zA-Z0-9_.%\/-]+:.*## / {printf "  %-22s %s\n", $$1, $$2}'\'' $(MAKEFILE_LIST)'
 
 .PHONY: install
-install: ## Install all the project dependencies. Use UV_OPTS for additional options.
+install: ## Install all the project dependencies. Use UV_OPTS for additional options
 	uv sync --group={dev,docs} $(UV_OPTS)
 
 .PHONY: install.docs
-install.docs: ## Install only the docs dependencies. Use UV_OPTS for additional options.
+install.docs: ## Install only the docs dependencies. Use UV_OPTS for additional options
 	uv sync --only-group docs $(UV_OPTS)
 
 .PHONY: format
@@ -40,18 +47,18 @@ lint-fix: ## Lint code and automatically fix issues using ruff
 test: test.unit ## Short for test.unit target
 
 .PHONY: test.unit
-test.unit: ## Run unit test. Use PYTEST_OPTS for additional options.
+test.unit: ## Run unit test. Use PYTEST_OPTS for additional options
 	@echo "Run unit test"
-	@uv run pytest $(PYTEST_OPTS) tests/unit
+	@uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/unit tests/unit
 
 .PHONY: test.integration
-test.integration: ## Run integration test. Use PYTEST_OPTS for additional options.
+test.integration: ## Run integration test. Use PYTEST_OPTS for additional options
 	@echo "Run integration test"
 	@$(MAKE) tools.check TOOL=docker
 	@docker compose -f script/integration_test_setup/compose.yml down -v
 	@docker compose -f script/integration_test_setup/compose.yml up -d --quiet-pull
 	@uv run script/integration_test_setup/config_lrr.py --base-url http://localhost:33333 --lrr-container-name lrr_api_test_lrr
-	@uv run pytest $(PYTEST_OPTS) tests/integration
+	@uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/integration tests/integration
 	@docker compose -f script/integration_test_setup/compose.yml down -v
 
 .PHONY: docs.gen
@@ -60,19 +67,24 @@ docs.gen: ## Generate API docs
 
 .PHONY: docs.gen-check
 docs.gen-check: docs.gen ## Check that generated API docs are in sync with the code
-	@git add -N docs/source
-	@if ! git diff --quiet -- docs/source; then \
+	@git add -N 'docs/source/*.rst'
+	@if ! git diff --quiet -- 'docs/source/*.rst'; then \
 		echo "❌ API docs are out of sync with the code."; \
 		echo "   Run 'make docs.gen' and commit the changes."; \
 		echo; \
-		git diff --stat -- docs/source; \
+		git diff --stat -- 'docs/source/*.rst'; \
 		exit 1; \
 	fi
 	@echo "✅ API docs are up to date."
 
 .PHONY: docs.build
 docs.build: docs.gen-check ## Build docs
-	@uv run sphinx-build -M html "docs/source/" "docs/build/"
+	@uv run sphinx-build -M html "$(DOCS_SOURCE_DIR)" "$(DOCS_TARGET_DIR)"
+
+DOCS_SERVE_PORT ?= 38000
+.PHONY: docs.serve
+docs.serve: ## Serve the docs built locally. Use DOCS_SERVE_PORT to change the default port (38000)
+	@cd $(DOCS_TARGET_DIR)/html && uv run python -m http.server $(DOCS_SERVE_PORT)
 
 .PHONY: ci
 ci: format-check lint docs.gen-check test.unit test.integration ## Run CI process locally

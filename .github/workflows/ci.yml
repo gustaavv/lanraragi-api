@@ -3,10 +3,11 @@ name: Continuous Integration
 on:
   push:
     paths:
-      - ".github/workflows/ci.yml"
+      - ".github/workflows/**"
       - ".github/actions/**"
       - "src/**"
       - "tests/**"
+      - "docs/**"
       - ".python-version"
       - "demo.py"
       - "Makefile"
@@ -44,8 +45,26 @@ jobs:
           make test.unit PYTEST_OPTS="--cov-report=markdown-append:$GITHUB_STEP_SUMMARY"
           echo -e "\n\n" >> $GITHUB_STEP_SUMMARY
 
+      - name: Upload unit coverage report
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-unit
+          path: docs/build/html/coverage/unit
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Integration test
         run: |
           echo -e "## Integration Test Coverage\n\n" >> $GITHUB_STEP_SUMMARY
           make test.integration PYTEST_OPTS="--cov-report=markdown-append:$GITHUB_STEP_SUMMARY"
           echo -e "\n\n" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload integration coverage report
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-integration
+          path: docs/build/html/coverage/integration
+          if-no-files-found: error
+          retention-days: 7
