@@ -109,7 +109,7 @@ docs.serve: ## Serve the docs built locally. Use DOCS_SERVE_PORT to change the d
 	@cd $(DOCS_TARGET_DIR)/html && uv run python -m http.server $(DOCS_SERVE_PORT)
 
 .PHONY: ci
-ci: format-check lint docs.gen-check test.unit test.integration ## Run CI process locally
+ci: format-check lint docs.gen-check test.unit test.integration test.coverage.combined test.coverage.badge ## Run CI process locally
 
 .PHONY: tools.check
 tools.check:
