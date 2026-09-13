@@ -4,6 +4,7 @@
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-2ea44f?logo=github)](https://gustaavv.github.io/lanraragi-api/)
 [![License](https://img.shields.io/github/license/gustaavv/lanraragi-api.svg)](https://github.com/gustaavv/lanraragi-api/blob/master/LICENSE)
 [![CI](https://github.com/gustaavv/lanraragi-api/actions/workflows/ci.yml/badge.svg)](https://github.com/gustaavv/lanraragi-api/actions/workflows/ci.yml)
+[![Coverage](https://gustaavv.github.io/lanraragi-api/coverage-badge.svg)](https://gustaavv.github.io/lanraragi-api/coverage/combined/index.html)
 
 A Python library for [LANraragi](https://github.com/Difegue/LANraragi) API.
 

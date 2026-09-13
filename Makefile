@@ -7,7 +7,12 @@ DOCS_TARGET_DIR := docs/build
 # Coverage reports go straight into the docs output so that they ship in the same
 # artifact: `make test.unit` / `test.integration` fill them in, `make docs.build`
 # reuses them, and the docs workflow downloads CI's artifacts back into this directory.
+# Each suite also keeps its raw data as .coverage.unit / .coverage.integration, which the
+# test.coverage.* targets combine into a third report and the badge.
 DOCS_COVERAGE_DIR := $(DOCS_TARGET_DIR)/html/coverage
+COVERAGE_UNIT_DATA := .coverage.unit
+COVERAGE_INTEGRATION_DATA := .coverage.integration
+COVERAGE_COMBINED_DATA := .coverage.combined
 
 
 .PHONY: help
@@ -49,7 +54,7 @@ test: test.unit ## Short for test.unit target
 .PHONY: test.unit
 test.unit: ## Run unit test. Use PYTEST_OPTS for additional options
 	@echo "Run unit test"
-	@uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/unit tests/unit
+	@COVERAGE_FILE=$(COVERAGE_UNIT_DATA) uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/unit tests/unit
 
 .PHONY: test.integration
 test.integration: ## Run integration test. Use PYTEST_OPTS for additional options
@@ -58,8 +63,25 @@ test.integration: ## Run integration test. Use PYTEST_OPTS for additional option
 	@docker compose -f script/integration_test_setup/compose.yml down -v
 	@docker compose -f script/integration_test_setup/compose.yml up -d --quiet-pull
 	@uv run script/integration_test_setup/config_lrr.py --base-url http://localhost:33333 --lrr-container-name lrr_api_test_lrr
-	@uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/integration tests/integration
+	@COVERAGE_FILE=$(COVERAGE_INTEGRATION_DATA) uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/integration tests/integration
 	@docker compose -f script/integration_test_setup/compose.yml down -v
+
+# There is deliberately no rule creating the data files: if a suite has not been run
+# yet, make aborts instead of building a partial report. --keep is load-bearing, as
+# coverage deletes the data files it combines unless told not to.
+$(COVERAGE_COMBINED_DATA): $(COVERAGE_UNIT_DATA) $(COVERAGE_INTEGRATION_DATA)
+	@echo "Combine coverage data"
+	@uv run coverage combine --keep --data-file=$@ $(COVERAGE_UNIT_DATA) $(COVERAGE_INTEGRATION_DATA)
+
+.PHONY: test.coverage.combined
+test.coverage.combined: $(COVERAGE_COMBINED_DATA) ## Combine both suites into a third coverage report
+	@uv run coverage html --data-file=$(COVERAGE_COMBINED_DATA) -d $(DOCS_COVERAGE_DIR)/combined
+
+.PHONY: test.coverage.badge
+test.coverage.badge: $(COVERAGE_COMBINED_DATA) ## Generate the coverage badge from the combined coverage data
+	@echo "Generate the coverage badge"
+	@uv run coverage xml --data-file=$(COVERAGE_COMBINED_DATA) -o coverage.xml
+	@uv run genbadge coverage -i coverage.xml -o $(DOCS_TARGET_DIR)/html/coverage-badge.svg
 
 .PHONY: docs.gen
 docs.gen: ## Generate API docs

@@ -12,6 +12,7 @@ CLAUDE.local.md
 bash.exe.stackdump
 .pytest_cache
 .coverage
+.coverage.*
 cov_html
 coverage.xml
 coverage.md
