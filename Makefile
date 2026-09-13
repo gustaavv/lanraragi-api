@@ -2,6 +2,13 @@ SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 MAKEFLAGS += --no-print-directory
 
+DOCS_SOURCE_DIR := docs/source
+DOCS_TARGET_DIR := docs/build
+# Coverage reports go straight into the docs output so that they ship in the same
+# artifact: `make test.unit` / `test.integration` fill them in, `make docs.build`
+# reuses them, and the docs workflow downloads CI's artifacts back into this directory.
+DOCS_COVERAGE_DIR := $(DOCS_TARGET_DIR)/html/coverage
+
 
 .PHONY: help
 help: ## Show dynamic help for available targets
@@ -42,7 +49,7 @@ test: test.unit ## Short for test.unit target
 .PHONY: test.unit
 test.unit: ## Run unit test. Use PYTEST_OPTS for additional options
 	@echo "Run unit test"
-	@uv run pytest $(PYTEST_OPTS) tests/unit
+	@uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/unit tests/unit
 
 .PHONY: test.integration
 test.integration: ## Run integration test. Use PYTEST_OPTS for additional options
@@ -51,7 +58,7 @@ test.integration: ## Run integration test. Use PYTEST_OPTS for additional option
 	@docker compose -f script/integration_test_setup/compose.yml down -v
 	@docker compose -f script/integration_test_setup/compose.yml up -d --quiet-pull
 	@uv run script/integration_test_setup/config_lrr.py --base-url http://localhost:33333 --lrr-container-name lrr_api_test_lrr
-	@uv run pytest $(PYTEST_OPTS) tests/integration
+	@uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/integration tests/integration
 	@docker compose -f script/integration_test_setup/compose.yml down -v
 
 .PHONY: docs.gen
@@ -70,22 +77,9 @@ docs.gen-check: docs.gen ## Check that generated API docs are in sync with the c
 	fi
 	@echo "✅ API docs are up to date."
 
-DOCS_SOURCE_DIR := docs/source
-DOCS_TARGET_DIR := docs/build
-DOCS_COVERAGE_DIR := $(DOCS_TARGET_DIR)/html/coverage
-
-.PHONY: docs.coverage
-docs.coverage:
-	@rm -rf $(DOCS_COVERAGE_DIR)
-	@echo "Generate unit test coverage report"
-	@$(MAKE) test.unit PYTEST_OPTS="$(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/unit"
-	@echo "Generate integration test coverage report"
-	@$(MAKE) test.integration PYTEST_OPTS="$(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/integration"
-
 .PHONY: docs.build
-docs.build: docs.gen-check ## Build docs: API docs + test coverage reports
+docs.build: docs.gen-check ## Build docs
 	@uv run sphinx-build -M html "$(DOCS_SOURCE_DIR)" "$(DOCS_TARGET_DIR)"
-	@$(MAKE) docs.coverage
 
 DOCS_SERVE_PORT ?= 38000
 .PHONY: docs.serve
