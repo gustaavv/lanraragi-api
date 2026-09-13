@@ -9,11 +9,11 @@ help: ## Show dynamic help for available targets
 	@sh -c 'awk '\''BEGIN {FS = ":.*## "} /^[a-zA-Z0-9_.%\/-]+:.*## / {printf "  %-22s %s\n", $$1, $$2}'\'' $(MAKEFILE_LIST)'
 
 .PHONY: install
-install: ## Install all the project dependencies. Use UV_OPTS for additional options.
+install: ## Install all the project dependencies. Use UV_OPTS for additional options
 	uv sync --group={dev,docs} $(UV_OPTS)
 
 .PHONY: install.docs
-install.docs: ## Install only the docs dependencies. Use UV_OPTS for additional options.
+install.docs: ## Install only the docs dependencies. Use UV_OPTS for additional options
 	uv sync --only-group docs $(UV_OPTS)
 
 .PHONY: format
@@ -40,12 +40,12 @@ lint-fix: ## Lint code and automatically fix issues using ruff
 test: test.unit ## Short for test.unit target
 
 .PHONY: test.unit
-test.unit: ## Run unit test. Use PYTEST_OPTS for additional options.
+test.unit: ## Run unit test. Use PYTEST_OPTS for additional options
 	@echo "Run unit test"
 	@uv run pytest $(PYTEST_OPTS) tests/unit
 
 .PHONY: test.integration
-test.integration: ## Run integration test. Use PYTEST_OPTS for additional options.
+test.integration: ## Run integration test. Use PYTEST_OPTS for additional options
 	@echo "Run integration test"
 	@$(MAKE) tools.check TOOL=docker
 	@docker compose -f script/integration_test_setup/compose.yml down -v
@@ -70,10 +70,12 @@ docs.gen-check: docs.gen ## Check that generated API docs are in sync with the c
 	fi
 	@echo "✅ API docs are up to date."
 
-DOCS_COVERAGE_DIR := docs/build/html/coverage
+DOCS_SOURCE_DIR := docs/source
+DOCS_TARGET_DIR := docs/build
+DOCS_COVERAGE_DIR := $(DOCS_TARGET_DIR)/html/coverage
 
 .PHONY: docs.coverage
-docs.coverage: ## Generate the HTML test coverage reports served by the docs. Use PYTEST_OPTS for additional options.
+docs.coverage:
 	@rm -rf $(DOCS_COVERAGE_DIR)
 	@echo "Generate unit test coverage report"
 	@$(MAKE) test.unit PYTEST_OPTS="$(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/unit"
@@ -81,9 +83,14 @@ docs.coverage: ## Generate the HTML test coverage reports served by the docs. Us
 	@$(MAKE) test.integration PYTEST_OPTS="$(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/integration"
 
 .PHONY: docs.build
-docs.build: docs.gen-check ## Build docs, including the test coverage reports. Use PYTEST_OPTS for additional options.
-	@uv run sphinx-build -M html "docs/source/" "docs/build/"
+docs.build: docs.gen-check ## Build docs: API docs + test coverage reports
+	@uv run sphinx-build -M html "$(DOCS_SOURCE_DIR)" "$(DOCS_TARGET_DIR)"
 	@$(MAKE) docs.coverage
+
+DOCS_SERVE_PORT ?= 38000
+.PHONY: docs.serve
+docs.serve: ## Serve the docs built locally. Use DOCS_SERVE_PORT to change the default port (38000)
+	@cd $(DOCS_TARGET_DIR)/html && uv run python -m http.server $(DOCS_SERVE_PORT)
 
 .PHONY: ci
 ci: format-check lint docs.gen-check test.unit test.integration ## Run CI process locally
