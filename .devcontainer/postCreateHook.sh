@@ -10,4 +10,6 @@ code="$(ls ~/.vscode-remote/bin/*/bin/code-server* | head -n 1)"
 $code --install-extension ms-python.python
 $code --uninstall-extension ms-python.debugpy --uninstall-extension ms-python.vscode-python-envs
 
+
+export UV_NO_PROGRESS=1
 make install
