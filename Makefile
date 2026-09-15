@@ -38,6 +38,10 @@ format-check: ## Check code formatting using ruff
 	@echo "Checking code formatting with ruff..."
 	@uv run ruff format --check
 
+.PHONY: type-check
+type-check: ## Check types using basedpyright
+	@uv run basedpyright
+
 .PHONY: lint
 lint: ## Lint code using ruff
 	@echo "Linting code with ruff..."
@@ -109,7 +113,7 @@ docs.serve: ## Serve the docs built locally. Use DOCS_SERVE_PORT to change the d
 	@cd $(DOCS_TARGET_DIR)/html && uv run python -m http.server $(DOCS_SERVE_PORT)
 
 .PHONY: ci
-ci: format-check lint docs.gen-check test.unit test.integration test.coverage.combined test.coverage.badge ## Run CI process locally
+ci: format-check type-check lint docs.gen-check test.unit test.integration test.coverage.combined test.coverage.badge ## Run CI process locally
 
 .PHONY: tools.check
 tools.check:

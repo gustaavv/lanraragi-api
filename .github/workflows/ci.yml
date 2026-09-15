@@ -37,6 +37,9 @@ jobs:
       - name: Format check
         run: make format-check
 
+      - name: Type check
+        run: make type-check
+
       - name: Lint
         run: make lint
 
