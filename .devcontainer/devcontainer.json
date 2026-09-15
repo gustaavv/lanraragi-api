@@ -14,8 +14,6 @@
       "extensions": [
         "vscode-icons-team.vscode-icons",
         "mhutchie.git-graph",
-        "ms-python.python",
-        "ms-python.vscode-pylance",
         "streetsidesoftware.code-spell-checker"
       ],
       "settings": {
