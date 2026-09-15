@@ -13,20 +13,22 @@ What it does:
 
 import sys
 from pathlib import Path
+from typing import Any
 
 # Get the directory of the current script
-script_dir = Path(__file__).resolve().parent
-sys.path.append(str(script_dir))
+script_dir = Path(__file__).resolve()
+project_dir = script_dir.parent.parent.parent
+sys.path.append(str(project_dir))
 
 
 import argparse
 import json
-import sys
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from docker import restart, wait_for_healthy
+
+from script.integration_test_setup.docker import restart, wait_for_healthy
 
 # endpoints to try (login & config)
 LOGIN_ENDPOINTS = ["login"]
@@ -36,7 +38,7 @@ CONFIG_POST_ENDPOINTS = ["config"]
 USER_AGENT = "lanraragi-config-script/1.0"
 
 
-def norm_url(base, path):
+def norm_url(base: str, path: str) -> str:
     return urljoin(base.rstrip("/") + "/", path)
 
 
@@ -117,7 +119,7 @@ def fetch_config_form(session: requests.Session, base_url: str):
     return None, None
 
 
-def form_to_dict(form):
+def form_to_dict(form: Any):
     """
     Parse a BeautifulSoup form element into a dict suitable for form POST.
     - includes inputs (text/hidden/password), selects (current option), textareas.

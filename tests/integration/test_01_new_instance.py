@@ -1,36 +1,37 @@
 import pytest
 
+from lanraragi_api import LANraragiAPI
 from lanraragi_api.base import APIHttpError, APIResponseDecodeError, DatabaseBackup
 from tests.integration.util.minion_util import wait_minion_job_util
 
 
 class TestSearch:
-    def test_search_archives(self, api):
+    def test_search_archives(self, api: LANraragiAPI):
         searchApi = api.search
         # empty db will always lead to 204
         with pytest.raises(APIResponseDecodeError):
-            searchApi.search_archives()
+            _ = searchApi.search_archives()
 
-    def test_search_archive_ids(self, api):
+    def test_search_archive_ids(self, api: LANraragiAPI):
         searchApi = api.search
         # empty db will always lead to 204
         with pytest.raises(APIResponseDecodeError):
-            searchApi.search_archive_ids()
+            _ = searchApi.search_archive_ids()
 
-    def test_search_random_archive(self, api):
+    def test_search_random_archive(self, api: LANraragiAPI):
         searchApi = api.search
         archives = searchApi.get_random_archives()
         assert len(archives) == 0
 
 
 class TestArchives:
-    def test_get_all_archives(self, api):
+    def test_get_all_archives(self, api: LANraragiAPI):
         archiveApi = api.archives
 
         archives = archiveApi.get_all_archives()
         assert len(archives) == 0
 
-    def test_get_all_untagged_archives(self, api):
+    def test_get_all_untagged_archives(self, api: LANraragiAPI):
         archiveApi = api.archives
 
         archives = archiveApi.get_untagged_archives()
@@ -38,7 +39,7 @@ class TestArchives:
 
 
 class TestCategories:
-    def test_basic_crud_categories(self, api):
+    def test_basic_crud_categories(self, api: LANraragiAPI):
         categoryApi = api.categories
 
         cats = categoryApi.get_all_categories()
@@ -47,6 +48,7 @@ class TestCategories:
         cid = cats[0].id
 
         cat = categoryApi.get_category(cid)
+        assert cat is not None
         assert cat == cats[0]
         assert cat.name == "🔖 Favorites"
         assert cat.archives == []
@@ -60,6 +62,7 @@ class TestCategories:
         assert resp.success == 1
 
         cat = categoryApi.get_category(cid)
+        assert cat is not None
         assert cat.name == "My Favorites"
         assert cat.archives == []
         assert cat.pinned == 0
@@ -73,7 +76,7 @@ class TestCategories:
 
 
 class TestTankoubons:
-    def test_get_all_tankoubons(self, api):
+    def test_get_all_tankoubons(self, api: LANraragiAPI):
         tankoubonApi = api.tankoubons
 
         tanks = tankoubonApi.get_all_tankoubons()
@@ -81,7 +84,7 @@ class TestTankoubons:
 
 
 class TestPlugins:
-    def test_list_plugins(self, api):
+    def test_list_plugins(self, api: LANraragiAPI):
         pluginApi = api.plugins
 
         plugins = pluginApi.get_available_plugins("download")
@@ -100,13 +103,13 @@ class TestPlugins:
         assert len(plugins) == 31
 
         with pytest.raises(APIHttpError) as e:
-            pluginApi.get_available_plugins("invalid_type")
+            _ = pluginApi.get_available_plugins("invalid_type")
         assert e.type is APIHttpError
         assert e.value.status_code == 400
 
 
 class TestShinobu:
-    def test_shinobu(self, api):
+    def test_shinobu(self, api: LANraragiAPI):
         shinobuApi = api.shinobu
 
         def assert_shinobu_status(is_alive: int):
@@ -139,7 +142,7 @@ class TestMinion:
 
 
 class TestOPDS:
-    def tet_get_opds_catalog(self, api):
+    def tet_get_opds_catalog(self, api: LANraragiAPI):
         opdsApi = api.opds
 
         resp = opdsApi.get_opds_catalog()
@@ -151,19 +154,19 @@ class TestStamps:
 
 
 class TestDatabase:
-    def test_get_stat(self, api):
+    def test_get_stat(self, api: LANraragiAPI):
         dbApi = api.database
 
         stat = dbApi.get_tag_statistics()
         assert len(stat) == 0
 
-    def test_get_backup(self, api):
+    def test_get_backup(self, api: LANraragiAPI):
         dbApi = api.database
 
         bkp = dbApi.get_backup()
         assert bkp == DatabaseBackup()
 
-    def test_get_backup_async(self, api):
+    def test_get_backup_async(self, api: LANraragiAPI):
         dbApi = api.database
 
         resp = dbApi.queue_backup()
@@ -182,7 +185,7 @@ class TestDatabase:
 
 
 class TestMisc:
-    def test_get_server_info(self, api):
+    def test_get_server_info(self, api: LANraragiAPI):
         miscApi = api.misc
 
         si = miscApi.get_server_information()

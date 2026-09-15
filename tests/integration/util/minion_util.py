@@ -4,7 +4,7 @@ from lanraragi_api.base import MinionAPI
 
 
 def wait_minion_job_util(
-    minionApi: MinionAPI, job_id: int, state: str, timeout=60, interval=1
+    minionApi: MinionAPI, job_id: int, state: str, timeout: int = 60, interval: int = 1
 ):
     start_time = time.time()
 

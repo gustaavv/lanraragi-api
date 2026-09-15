@@ -1,6 +1,6 @@
 import base64
 from enum import Enum
-from typing import Any
+from typing import Any, TypeVar
 
 import requests
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -121,7 +121,7 @@ class APIRequestError(APIError):
     def __init__(self, url: str, error_type: str | None = None):
         suffix = f" ({error_type})" if error_type else ""
         super().__init__(f"Request to {url} failed{suffix}")
-        self.url = url
+        self.url: str = url
 
 
 class APIHttpError(APIError):
@@ -134,8 +134,8 @@ class APIHttpError(APIError):
 
     def __init__(self, status_code: int, url: str):
         super().__init__(f"HTTP {status_code} for {url}")
-        self.status_code = status_code
-        self.url = url
+        self.status_code: int = status_code
+        self.url: str = url
 
 
 class APIResponseDecodeError(APIError):
@@ -150,7 +150,7 @@ class APIResponseDecodeError(APIError):
 
     def __init__(self, url: str, message: str):
         super().__init__(f"Failed to parse response from {url}: {message}")
-        self.url = url
+        self.url: str = url
 
 
 class APIOperationError(APIError):
@@ -180,10 +180,14 @@ class APIOperationError(APIError):
         if status_code is not None:
             prefix = f"{prefix} with HTTP {status_code}"
         super().__init__(f"{prefix}: {error_message}")
-        self.operation = operation
-        self.message = message
-        self.status_code = status_code
-        self.payload = payload
+        self.operation: str = operation
+        self.message: str | None = message
+        self.status_code: int | None = status_code
+        self.payload: dict[str, Any] | None = payload
+
+
+T = TypeVar("T", bound=BaseModel)
+R = TypeVar(name="R", bound=OperationResponse)
 
 
 class BaseAPICall:
@@ -228,33 +232,33 @@ class BaseAPICall:
         include_error_payload: bool = False,
         include_operation_error_message: bool = True,
         raise_on_operation_error: bool = False,
-        default_headers=None,
-        default_params=None,
+        default_headers: dict[str, str] | None = None,
+        default_params: dict[str, str] | None = None,
     ):
         if default_params is None:
             default_params = {}
         if default_headers is None:
             default_headers = {}
 
-        self.auth_way = auth_way
-        self.key = key
-        self.server = server
-        self.timeout = timeout
-        self.include_error_payload = include_error_payload
-        self.include_operation_error_message = include_operation_error_message
-        self.raise_on_operation_error = raise_on_operation_error
+        self.auth_way: Auth = auth_way
+        self.key: str | None = key
+        self.server: str = server
+        self.timeout: float | tuple[int, int] | None = timeout
+        self.include_error_payload: bool = include_error_payload
+        self.include_operation_error_message: bool = include_operation_error_message
+        self.raise_on_operation_error: bool = raise_on_operation_error
         self.server = self.server.removesuffix("/")
-        self.default_headers = dict(default_headers)
-        self.default_params = dict(default_params)
+        self.default_headers: dict[str, str] = dict(default_headers)
+        self.default_params: dict[str, str] = dict(default_params)
 
-        if key:
+        if self.key is not None:
             if auth_way == Auth.QUERY_PARAM:
                 self.default_params["key"] = self.key
             elif auth_way == Auth.AUTH_HEADER:
                 base64_key = base64.b64encode(self.key.encode("utf-8")).decode("utf-8")
                 self.default_headers["Authorization"] = f"Bearer {base64_key}"
 
-    def build_headers(self, headers=None):
+    def build_headers(self, headers: dict[str, Any] | None = None):
         """Merge the headers of a single request into the default headers.
 
         Headers of the request win over default headers of the same name, so a
@@ -297,7 +301,7 @@ class BaseAPICall:
             merged[k] = self.default_params[k]
         return self._normalize_params(merged)
 
-    def _normalize_params(self, params: dict) -> dict:
+    def _normalize_params(self, params: dict[str, Any]):
         new_params = {}
         for k, v in params.items():
             if v is None:
@@ -338,7 +342,7 @@ class BaseAPICall:
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
         timeout: float | tuple[int, int] | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> requests.Response:
         """Send an HTTP request and return the raw response.
 
@@ -404,7 +408,7 @@ class BaseAPICall:
         except ValueError as exc:
             raise APIResponseDecodeError(url, str(exc)) from exc
 
-    def parse_model(self, model: type[BaseModel], payload: Any, path: str):
+    def parse_model(self, model: type[T], payload: Any, path: str) -> T:
         """Validate a decoded payload against a pydantic model.
 
         Args:
@@ -424,7 +428,7 @@ class BaseAPICall:
         except ValidationError as exc:
             raise APIResponseDecodeError(url, str(exc)) from exc
 
-    def parse_model_list(self, model: type[BaseModel], payload: Any, path: str):
+    def parse_model_list(self, model: type[T], payload: Any, path: str) -> list[T]:
         """Validate a decoded payload as a list of a pydantic model.
 
         Args:
@@ -451,7 +455,7 @@ class BaseAPICall:
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
         timeout: float | tuple[int, int] | None = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Send a request and decode its body as JSON.
 
@@ -490,7 +494,7 @@ class BaseAPICall:
         self,
         method: str,
         path: str,
-        model: type[BaseModel],
+        model: type[T],
         params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
@@ -536,13 +540,13 @@ class BaseAPICall:
         self,
         method: str,
         path: str,
-        model: type[BaseModel],
+        model: type[T],
         params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
         timeout: float | tuple[int, int] | None = None,
         **kwargs,
-    ):
+    ) -> list[T]:
         """Send a request and validate its JSON body as a list of a model.
 
         Args:
@@ -582,14 +586,14 @@ class BaseAPICall:
         self,
         method: str,
         path: str,
-        model: type[OperationResponse] = OperationResponse,
+        model: type[R] = OperationResponse,
         params: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
         raise_on_failure: bool | None = None,
         timeout: float | tuple[int, int] | None = None,
-        **kwargs,
-    ) -> OperationResponse:
+        **kwargs: Any,
+    ) -> R:
         """Send a request whose body reports the result of an operation.
 
         The server reports most operation failures inside the body, through the
