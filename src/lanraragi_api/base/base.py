@@ -295,7 +295,19 @@ class BaseAPICall:
             if k in merged:
                 continue
             merged[k] = self.default_params[k]
-        return merged
+        return self._normalize_params(merged)
+
+    def _normalize_params(self, params: dict) -> dict:
+        new_params = {}
+        for k, v in params.items():
+            if v is None:
+                continue
+            if isinstance(v, bool):
+                # requests won't encoding bool value to lowercase string
+                v = "true" if v else "false"
+            new_params[k] = v
+
+        return new_params
 
     def _to_url(self, path: str) -> str:
         """Build the absolute URL of a request from its path.
