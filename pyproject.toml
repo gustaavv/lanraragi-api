@@ -41,10 +41,11 @@ addopts = [
 ]
 
 [tool.basedpyright]
-typeCheckingMode = "strict"
+typeCheckingMode = "recommended"
 include = [
     "src",
     "tests",
     # "script"
 ]
-# reportAny = false
+reportAny = false
+reportExplicitAny=false

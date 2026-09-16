@@ -1,6 +1,6 @@
 import base64
 from enum import Enum
-from typing import Any, TypeVar, cast
+from typing import Any, ClassVar, TypeVar, cast
 
 import requests
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -84,7 +84,7 @@ class OperationResponse(DictLikeModel):
         success: 1 if the operation was successful, else 0.
     """
 
-    model_config = ConfigDict(extra="allow")
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="allow")
 
     operation: str = Field(...)
     error: str | None = Field(default=None)
