@@ -1,3 +1,5 @@
+from typing import Any
+
 from lanraragi_api.base.base import BaseAPICall, OperationResponse
 
 
@@ -7,7 +9,7 @@ class ShinobuAPI(BaseAPICall):
     Shared request and error behavior is documented on ``BaseAPICall``.
     """
 
-    def get_shinobu_status(self) -> dict:
+    def get_shinobu_status(self) -> dict[str, Any]:
         """Get the current status of the filewatcher.
 
         Returns:

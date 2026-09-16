@@ -37,7 +37,7 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
         map[k].append(a)
     skip_count = 0
     update_count = 0
-    for root, dirs, files in os.walk(dirname):
+    for root, _dirs, files in os.walk(dirname):
         for f in files:
             if not is_archive(f):
                 continue
@@ -61,7 +61,7 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
             _, subfolder = os.path.split(root)
             update_count += 1
             a.set_artists([subfolder])
-            api.archives.update_archive_metadata(a.arcid, a)
+            _ = api.archives.update_archive_metadata(a.arcid, a)
     print(f"archives skipped count: {skip_count} , updated count:  {update_count}")
 
 
@@ -82,8 +82,8 @@ def remove_all_categories(api: LANraragiAPI):
     cs = api.categories.get_all_categories()
     for c in cs:
         for aid in c.archives:
-            api.categories.remove_archive_from_category(c.id, aid)
+            _ = api.categories.remove_archive_from_category(c.id, aid)
         print(f"remove {len(c.archives)} from category {c.id}:{c.name}")
     for c in cs:
-        api.categories.delete_category(c.id)
+        _ = api.categories.delete_category(c.id)
     print(f"remove {len(cs)} categories")

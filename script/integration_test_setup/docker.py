@@ -4,7 +4,7 @@ import time
 
 
 def restart(container_name: str):
-    subprocess.run(
+    _ = subprocess.run(
         ["docker", "restart", container_name],
         capture_output=True,
         text=True,
@@ -12,7 +12,7 @@ def restart(container_name: str):
     )
 
 
-def wait_for_healthy(container_name, timeout=60, interval=1):
+def wait_for_healthy(container_name: str, timeout: int = 60, interval: int = 1):
     """
     Wait until the specified Docker container becomes healthy.
 

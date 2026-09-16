@@ -45,7 +45,7 @@ def compute_id(file_path: str) -> str:
     return digest
 
 
-def is_archive(file_name):
+def is_archive(file_name: str):
     """Check whether a file name has a supported archive extension.
 
     Args:

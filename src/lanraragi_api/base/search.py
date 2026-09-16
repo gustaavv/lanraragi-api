@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 from pydantic import BaseModel, Field
 
 from lanraragi_api.base.archive import ArchiveMetadata
@@ -344,7 +346,9 @@ class SearchAPI(BaseAPICall):
         data = payload.get("data")
         if not isinstance(data, list):
             raise APIResponseDecodeError(self._to_url(path), "missing data list")
-        return [self.parse_model(ArchiveMetadata, a, path) for a in data]
+        return [
+            self.parse_model(ArchiveMetadata, a, path) for a in cast(list[Any], data)
+        ]
 
     def discard_search_cache(self) -> OperationResponse:
         """Discard the cache containing previous user searches.

@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 from lanraragi_api.base.base import (
@@ -144,11 +146,10 @@ class MiscAPI(BaseAPICall):
             is returned in the operation result, with ``success`` set to 0,
             instead of raising.
         """
-        request_kwargs = {"params": {"url": url, "catid": category_id}}
+        request_kwargs: dict[str, Any] = {"params": {"url": url, "catid": category_id}}
         if use_form_data:
             files = {}
-            if url is not None:
-                files["url"] = (None, url)
+            files["url"] = (None, url)
             if category_id is not None:
                 files["catid"] = (None, category_id)
             request_kwargs = {"files": files}

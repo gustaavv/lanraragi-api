@@ -64,10 +64,10 @@ class LANraragiAPI:
         include_error_payload: bool = False,
         include_operation_error_message: bool = True,
         raise_on_operation_error: bool = False,
-        default_headers=None,
-        default_params=None,
+        default_headers: dict[str, str] | None = None,
+        default_params: dict[str, str] | None = None,
     ):
-        self.search = SearchAPI(
+        self.search: SearchAPI = SearchAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -78,7 +78,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.archives = ArchiveAPI(
+        self.archives: ArchiveAPI = ArchiveAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -89,7 +89,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.database = DatabaseAPI(
+        self.database: DatabaseAPI = DatabaseAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -100,7 +100,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.categories = CategoryAPI(
+        self.categories: CategoryAPI = CategoryAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -111,7 +111,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.tankoubons = TankoubonAPI(
+        self.tankoubons: TankoubonAPI = TankoubonAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -122,7 +122,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.plugins = PluginAPI(
+        self.plugins: PluginAPI = PluginAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -133,7 +133,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.shinobu = ShinobuAPI(
+        self.shinobu: ShinobuAPI = ShinobuAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -144,7 +144,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.minion = MinionAPI(
+        self.minion: MinionAPI = MinionAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -155,7 +155,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.opds = OPDSAPI(
+        self.opds: OPDSAPI = OPDSAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -166,7 +166,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.misc = MiscAPI(
+        self.misc: MiscAPI = MiscAPI(
             server,
             key=key,
             auth_way=auth_way,
@@ -177,7 +177,7 @@ class LANraragiAPI:
             default_headers=default_headers,
             default_params=default_params,
         )
-        self.stamps = StampAPI(
+        self.stamps: StampAPI = StampAPI(
             server,
             key=key,
             auth_way=auth_way,

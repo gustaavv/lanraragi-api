@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 
 from pydantic import AliasChoices, BaseModel, Field
 from requests import Response
@@ -106,7 +106,10 @@ class TankoubonAPI(BaseAPICall):
         if not isinstance(result, list):
             raise APIResponseDecodeError(self._to_url(path), "missing result list")
         return TankoubonListResponse(
-            result=[self.parse_model(TankoubonMetadata, t, path) for t in result],
+            result=[
+                self.parse_model(TankoubonMetadata, t, path)
+                for t in cast(list[Any], result)
+            ],
             total=payload.get("total"),
             filtered=payload.get("filtered"),
         )
