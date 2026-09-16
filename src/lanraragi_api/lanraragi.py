@@ -64,8 +64,8 @@ class LANraragiAPI:
         include_error_payload: bool = False,
         include_operation_error_message: bool = True,
         raise_on_operation_error: bool = False,
-        default_headers=None,
-        default_params=None,
+        default_headers: dict[str, str] | None = None,
+        default_params: dict[str, str] | None = None,
     ):
         self.search = SearchAPI(
             server,

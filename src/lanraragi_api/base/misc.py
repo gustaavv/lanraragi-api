@@ -149,8 +149,7 @@ class MiscAPI(BaseAPICall):
         request_kwargs: dict[str, Any] = {"params": {"url": url, "catid": category_id}}
         if use_form_data:
             files = {}
-            if url is not None:
-                files["url"] = (None, url)
+            files["url"] = (None, url)
             if category_id is not None:
                 files["catid"] = (None, category_id)
             request_kwargs = {"files": files}

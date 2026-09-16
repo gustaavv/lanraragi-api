@@ -1,6 +1,6 @@
 import base64
 from enum import Enum
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 import requests
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -44,7 +44,7 @@ class DictLikeModel(BaseModel):
             raise KeyError(key)
         return data[key]
 
-    def get(self, key: str, default=None):
+    def get(self, key: str, default: None = None):
         """Return the value of the field named ``key``, or a default.
 
         Args:
@@ -280,7 +280,7 @@ class BaseAPICall:
             merged[k] = self.default_headers[k]
         return merged
 
-    def build_params(self, params=None):
+    def build_params(self, params: dict[str, Any] | None = None):
         """Merge the query parameters of a single request into the defaults.
 
         Parameters of the request win over default parameters of the same name.
@@ -302,7 +302,7 @@ class BaseAPICall:
         return self._normalize_params(merged)
 
     def _normalize_params(self, params: dict[str, Any]):
-        new_params = {}
+        new_params: dict[str, Any] = {}
         for k, v in params.items():
             if v is None:
                 continue
@@ -445,7 +445,9 @@ class BaseAPICall:
         """
         if not isinstance(payload, list):
             raise APIResponseDecodeError(self._to_url(path), "response is not a list")
-        return [self.parse_model(model, item, path) for item in payload]
+        return [
+            self.parse_model(model, item, path) for item in cast(list[Any], payload)
+        ]
 
     def request_json(
         self,
@@ -499,7 +501,7 @@ class BaseAPICall:
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
         timeout: float | tuple[int, int] | None = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Send a request and validate its JSON body against a model.
 
@@ -545,7 +547,7 @@ class BaseAPICall:
         headers: dict[str, str] | None = None,
         expected_statuses: set[int] | None = None,
         timeout: float | tuple[int, int] | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> list[T]:
         """Send a request and validate its JSON body as a list of a model.
 
@@ -648,9 +650,9 @@ class BaseAPICall:
             should_raise = raise_on_failure
 
         if should_raise and (resp.status_code >= 400 or operation.success != 1):
-            operation_payload = None
+            operation_payload: dict[str, Any] | None = None
             if self.include_error_payload and isinstance(payload, dict):
-                operation_payload = payload
+                operation_payload = cast(dict[str, Any], payload)
             raise APIOperationError(
                 operation.operation,
                 operation.error if self.include_operation_error_message else None,

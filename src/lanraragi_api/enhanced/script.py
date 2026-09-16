@@ -37,7 +37,7 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
         map[k].append(a)
     skip_count = 0
     update_count = 0
-    for root, dirs, files in os.walk(dirname):
+    for root, _dirs, files in os.walk(dirname):
         for f in files:
             if not is_archive(f):
                 continue

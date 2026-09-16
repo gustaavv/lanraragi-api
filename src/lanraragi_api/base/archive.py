@@ -1,4 +1,5 @@
 from os.path import isfile
+from typing import Any, cast
 
 from pydantic import BaseModel, Field
 from requests import Response
@@ -43,7 +44,7 @@ class ArchiveMetadata(BaseModel):
     progress: int = Field(...)
     size: int = Field(...)
     summary: str | None = Field(default=None)
-    toc: list[dict] | None = Field(default=None)
+    toc: list[dict[Any, Any]] | None = Field(default=None)
 
     # k1:v1, k2:v21, k2:v22, v3, v4
     # allow duplicate keys, only values
@@ -61,8 +62,8 @@ class ArchiveMetadata(BaseModel):
             dict[str, list[str]]: One entry per tag key, holding its values in
                 order of appearance.
         """
-        tags = self.tags.split(",")
-        ans = {}
+        tags: list[str] = self.tags.split(",")
+        ans: dict[str, list[str]] = {}
         for t in tags:
             if t == "":
                 continue
@@ -214,7 +215,7 @@ class ArchiveAPI(BaseAPICall):
         payload = self.request_json("GET", path)
         if not isinstance(payload, list):
             raise APIResponseDecodeError(self._to_url(path), "response is not a list")
-        return payload
+        return cast(list[str], payload)
 
     def get_archive_metadata(self, id: str) -> ArchiveMetadata | None:
         """Get Metadata (title, tags) for a given Archive.
@@ -261,7 +262,9 @@ class ArchiveAPI(BaseAPICall):
         clist = payload.get("categories")
         if not isinstance(clist, list):
             raise APIResponseDecodeError(self._to_url(path), "missing categories list")
-        return [self.parse_model(CategoryMetadata, c, path) for c in clist]
+        return [
+            self.parse_model(CategoryMetadata, c, path) for c in cast(list[Any], clist)
+        ]
 
     def get_archive_tankoubons(self, id: str) -> list[str]:
         """Get all the Tankoubons which currently refer to this Archive ID.
@@ -284,7 +287,7 @@ class ArchiveAPI(BaseAPICall):
         tankoubons = payload.get("tankoubons")
         if not isinstance(tankoubons, list):
             raise APIResponseDecodeError(self._to_url(path), "missing tankoubons list")
-        return tankoubons
+        return cast(list[str], tankoubons)
 
     def get_archive_thumbnail(
         self, id: str, page: int = 1, no_fallback: bool | None = None
@@ -384,7 +387,7 @@ class ArchiveAPI(BaseAPICall):
         """
         return self.request("GET", f"/api/archives/{id}/download")
 
-    def extract_archive(self, id: str, force: bool = False) -> dict:
+    def extract_archive(self, id: str, force: bool = False) -> dict[Any, Any]:
         """Get a list of URLs pointing to the images contained in an archive.
 
         If necessary, this endpoint also launches a background Minion job to

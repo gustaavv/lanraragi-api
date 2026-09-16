@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 from lanraragi_api.base.base import BaseAPICall, OperationResponse
@@ -217,7 +219,7 @@ class CategoryAPI(BaseAPICall):
             "DELETE", f"/api/categories/{category_id}/{archive_id}"
         )
 
-    def get_bookmark_link(self) -> dict:
+    def get_bookmark_link(self) -> dict[Any, Any]:
         """Retrieve the ID of the category linked to the bookmark feature.
 
         Returns:

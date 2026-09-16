@@ -41,6 +41,10 @@ addopts = [
 ]
 
 [tool.basedpyright]
-typeCheckingMode = "basic"
-include = ["src", "tests", "script"]
+typeCheckingMode = "strict"
+include = [
+    "src",
+    "tests",
+    # "script"
+]
 # reportAny = false

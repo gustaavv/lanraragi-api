@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 from pydantic import BaseModel, Field
 
 from lanraragi_api.base.base import (
@@ -87,7 +89,9 @@ class StampAPI(BaseAPICall):
         result = payload.get("result")
         if not isinstance(result, list):
             raise APIResponseDecodeError(self._to_url(path), "missing result list")
-        return [self.parse_model(StampsData, item, path) for item in result]
+        return [
+            self.parse_model(StampsData, item, path) for item in cast(list[Any], result)
+        ]
 
     def add_stamp(
         self,

@@ -20,7 +20,7 @@ class BasicJobStatus(BaseModel):
     state: str = Field(...)
     task: str = Field(...)
     error: str | None = Field(default=None)
-    notes: dict | None = Field(default=None)
+    notes: dict[Any, Any] | None = Field(default=None)
 
 
 class FullJobStatus(BaseModel):
