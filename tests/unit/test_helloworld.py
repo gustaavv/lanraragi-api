@@ -1,4 +1,5 @@
-from lanraragi_api.api.base import Auth, BaseAPICall
+from lanraragi_api.api.base import BaseAPICall
+from lanraragi_api.entity.base import Auth
 
 
 def hello_world():

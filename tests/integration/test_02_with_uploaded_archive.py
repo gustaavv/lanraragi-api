@@ -10,10 +10,8 @@ import pytest
 from pydantic import BaseModel, Field
 
 from lanraragi_api import APIHttpError, APIResponseDecodeError, LANraragiAPI
-from lanraragi_api.api import (
-    DatabaseBackup,
-    StampsData,
-)
+from lanraragi_api.entity.database import DatabaseBackup
+from lanraragi_api.entity.stamp import StampsData
 from tests.integration.util.archive_util import (
     ArchiveRawContent,
     gen_test_archive,

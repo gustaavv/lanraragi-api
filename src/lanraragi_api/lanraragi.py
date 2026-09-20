@@ -1,17 +1,17 @@
 from lanraragi_api.api import (
+    OPDSAPI,
     ArchiveAPI,
     CategoryAPI,
     DatabaseAPI,
     MinionAPI,
     MiscAPI,
+    PluginAPI,
     SearchAPI,
     ShinobuAPI,
     StampAPI,
     TankoubonAPI,
 )
-from lanraragi_api.api.base import Auth
-from lanraragi_api.api.opds import OPDSAPI
-from lanraragi_api.api.plugin import PluginAPI
+from lanraragi_api.entity.base import Auth
 
 
 class LANraragiAPI:

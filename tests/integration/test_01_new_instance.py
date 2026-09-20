@@ -1,7 +1,7 @@
 import pytest
 
 from lanraragi_api import APIHttpError, APIResponseDecodeError, LANraragiAPI
-from lanraragi_api.api import DatabaseBackup
+from lanraragi_api.entity.database import DatabaseBackup
 from tests.integration.util.minion_util import wait_minion_job_util
 
 pytestmark = pytest.mark.order(1)

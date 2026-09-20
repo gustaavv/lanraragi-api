@@ -3,8 +3,8 @@ import unicodedata
 from os.path import join
 
 from lanraragi_api import LANraragiAPI
-from lanraragi_api.api.archive import ArchiveMetadata
 from lanraragi_api.enhanced.server_side import compute_id, is_archive
+from lanraragi_api.entity.archive import ArchiveMetadata
 
 
 def subfolders_to_artists(api: LANraragiAPI, dirname: str):
