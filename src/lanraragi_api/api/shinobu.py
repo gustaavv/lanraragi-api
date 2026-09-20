@@ -1,6 +1,6 @@
 from typing import Any
 
-from lanraragi_api.base.base import BaseAPICall, OperationResponse
+from lanraragi_api.api.base import BaseAPICall, OperationResponse
 
 
 class ShinobuAPI(BaseAPICall):

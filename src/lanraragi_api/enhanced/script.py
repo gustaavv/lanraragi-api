@@ -3,7 +3,7 @@ import unicodedata
 from os.path import join
 
 from lanraragi_api import LANraragiAPI
-from lanraragi_api.base.archive import ArchiveMetadata
+from lanraragi_api.api.archive import ArchiveMetadata
 from lanraragi_api.enhanced.server_side import compute_id, is_archive
 
 

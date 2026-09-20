@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from lanraragi_api.base.base import BaseAPICall, OperationResponse
+from lanraragi_api.api.base import BaseAPICall, OperationResponse
 
 
 class CategoryMetadata(BaseModel):

@@ -1,4 +1,4 @@
-from lanraragi_api.base import (
+from lanraragi_api.api import (
     ArchiveAPI,
     CategoryAPI,
     DatabaseAPI,
@@ -9,9 +9,9 @@ from lanraragi_api.base import (
     StampAPI,
     TankoubonAPI,
 )
-from lanraragi_api.base.base import Auth
-from lanraragi_api.base.opds import OPDSAPI
-from lanraragi_api.base.plugin import PluginAPI
+from lanraragi_api.api.base import Auth
+from lanraragi_api.api.opds import OPDSAPI
+from lanraragi_api.api.plugin import PluginAPI
 
 
 class LANraragiAPI:

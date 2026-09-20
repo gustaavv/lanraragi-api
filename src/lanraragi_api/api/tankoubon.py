@@ -3,8 +3,8 @@ from typing import Any, cast
 from pydantic import AliasChoices, BaseModel, Field
 from requests import Response
 
-from lanraragi_api.base.archive import ArchiveMetadata
-from lanraragi_api.base.base import (
+from lanraragi_api.api.archive import ArchiveMetadata
+from lanraragi_api.api.base import (
     BaseAPICall,
     DictLikeModel,
     OperationResponse,

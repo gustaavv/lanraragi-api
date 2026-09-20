@@ -1,6 +1,6 @@
 from requests import Response
 
-from lanraragi_api.base.base import BaseAPICall
+from lanraragi_api.api.base import BaseAPICall
 
 
 class OPDSAPI(BaseAPICall):

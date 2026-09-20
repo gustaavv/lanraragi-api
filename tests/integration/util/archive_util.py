@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from requests import Response
 
 from lanraragi_api import LANraragiAPI
-from lanraragi_api.base import MinionJobResponse
+from lanraragi_api.api import MinionJobResponse
 from tests.integration.util.minion_util import wait_minion_job_util
 
 

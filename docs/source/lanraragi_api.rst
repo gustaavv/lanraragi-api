@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   lanraragi_api.base
+   lanraragi_api.api
    lanraragi_api.enhanced
 
 Submodules

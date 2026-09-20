@@ -3,7 +3,7 @@ from os.path import isfile
 from pydantic import BaseModel, Field
 from requests import Response
 
-from lanraragi_api.base.base import (
+from lanraragi_api.api.base import (
     BaseAPICall,
     DictLikeModel,
     MinionJobResponse,

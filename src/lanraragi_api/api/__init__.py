@@ -1,27 +1,27 @@
-from lanraragi_api.base.archive import ArchiveAPI, ArchiveMetadata
-from lanraragi_api.base.base import (
+from lanraragi_api.api.archive import ArchiveAPI, ArchiveMetadata
+from lanraragi_api.api.base import (
     Auth,
     MinionJobResponse,
     OperationResponse,
 )
-from lanraragi_api.base.category import CategoryAPI, CategoryMetadata
-from lanraragi_api.base.database import (
+from lanraragi_api.api.category import CategoryAPI, CategoryMetadata
+from lanraragi_api.api.database import (
     BackupArchiveMetadata,
     BackupCategoryMetadata,
     DatabaseAPI,
     DatabaseBackup,
 )
-from lanraragi_api.base.minion import MinionAPI
-from lanraragi_api.base.misc import MiscAPI
-from lanraragi_api.base.search import SearchAPI, SearchIdsResult
-from lanraragi_api.base.shinobu import ShinobuAPI
-from lanraragi_api.base.stamp import (
+from lanraragi_api.api.minion import MinionAPI
+from lanraragi_api.api.misc import MiscAPI
+from lanraragi_api.api.search import SearchAPI, SearchIdsResult
+from lanraragi_api.api.shinobu import ShinobuAPI
+from lanraragi_api.api.stamp import (
     AddStampResponse,
     StampAPI,
     StampsData,
     StampsResponse,
 )
-from lanraragi_api.base.tankoubon import (
+from lanraragi_api.api.tankoubon import (
     TankoubonAPI,
     TankoubonDetailResponse,
     TankoubonListResponse,
