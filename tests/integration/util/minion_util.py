@@ -1,7 +1,7 @@
 import time
 from typing import Literal
 
-from lanraragi_api.base import MinionAPI
+from lanraragi_api.api.minion import MinionAPI
 
 
 def wait_minion_job_util(

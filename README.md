@@ -22,18 +22,17 @@ pip install lanraragi_api
 
 Get metadata of a random archive:
 
-> See [demo.py](demo.py)
 
 ```python
 from lanraragi_api import LANraragiAPI
-from lanraragi_api.base.archive import ArchiveMetadata
 
 apikey = "your-key"
 server = "http://127.0.0.1:3000"
 api = LANraragiAPI(server, key=apikey)
 
-archives: list[ArchiveMetadata] = api.search.get_random_archives()
-print(archives[0])
+archives = api.search.get_random_archives()
+if len(archives) > 0:
+    print(archives[0])
 ```
 
 

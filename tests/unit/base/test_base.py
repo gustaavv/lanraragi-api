@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 from pydantic import BaseModel, Field
 
-from lanraragi_api.base.base import BaseAPICall
+from lanraragi_api.api.base import BaseAPICall
 
 HeaderType = dict[str, Any]
 ParamType = dict[str, Any]

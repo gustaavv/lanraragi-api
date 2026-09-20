@@ -9,13 +9,9 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from pydantic import BaseModel, Field
 
-from lanraragi_api import LANraragiAPI
-from lanraragi_api.base import (
-    APIHttpError,
-    APIResponseDecodeError,
-    DatabaseBackup,
-    StampsData,
-)
+from lanraragi_api import APIHttpError, APIResponseDecodeError, LANraragiAPI
+from lanraragi_api.entity.database import DatabaseBackup
+from lanraragi_api.entity.stamp import StampsData
 from tests.integration.util.archive_util import (
     ArchiveRawContent,
     gen_test_archive,

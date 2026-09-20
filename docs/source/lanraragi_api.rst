@@ -7,11 +7,20 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   lanraragi_api.base
+   lanraragi_api.api
    lanraragi_api.enhanced
+   lanraragi_api.entity
 
 Submodules
 ----------
+
+lanraragi\_api.error module
+---------------------------
+
+.. automodule:: lanraragi_api.error
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 lanraragi\_api.lanraragi module
 -------------------------------
