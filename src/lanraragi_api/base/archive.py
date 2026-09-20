@@ -6,12 +6,12 @@ from pydantic import BaseModel, Field
 from requests import Response
 
 from lanraragi_api.base.base import (
-    APIResponseDecodeError,
     BaseAPICall,
     MinionJobResponse,
     OperationResponse,
 )
 from lanraragi_api.base.category import CategoryMetadata
+from lanraragi_api.error import APIResponseDecodeError
 
 ARCHIVE_TAG_VALUES_SET = "ONLY_VALUES"
 

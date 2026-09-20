@@ -4,10 +4,10 @@ from pydantic import BaseModel, Field
 
 from lanraragi_api.base.archive import ArchiveMetadata
 from lanraragi_api.base.base import (
-    APIResponseDecodeError,
     BaseAPICall,
     OperationResponse,
 )
+from lanraragi_api.error import APIResponseDecodeError
 
 
 class SearchResult(BaseModel):

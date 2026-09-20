@@ -3,11 +3,11 @@ from typing import Any, cast
 from pydantic import BaseModel, Field
 
 from lanraragi_api.base.base import (
-    APIResponseDecodeError,
     BaseAPICall,
     DictLikeModel,
     OperationResponse,
 )
+from lanraragi_api.error import APIResponseDecodeError
 
 
 class StampsData(BaseModel):

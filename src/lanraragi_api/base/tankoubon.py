@@ -5,11 +5,11 @@ from requests import Response
 
 from lanraragi_api.base.archive import ArchiveMetadata
 from lanraragi_api.base.base import (
-    APIResponseDecodeError,
     BaseAPICall,
     DictLikeModel,
     OperationResponse,
 )
+from lanraragi_api.error import APIResponseDecodeError
 
 
 class TankoubonMetadata(BaseModel):

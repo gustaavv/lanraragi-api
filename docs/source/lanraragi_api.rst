@@ -13,6 +13,14 @@ Subpackages
 Submodules
 ----------
 
+lanraragi\_api.error module
+---------------------------
+
+.. automodule:: lanraragi_api.error
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 lanraragi\_api.lanraragi module
 -------------------------------
 
