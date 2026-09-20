@@ -10,6 +10,7 @@ Subpackages
    lanraragi_api.api
    lanraragi_api.enhanced
    lanraragi_api.entity
+   lanraragi_api.util
 
 Submodules
 ----------

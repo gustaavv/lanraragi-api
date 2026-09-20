@@ -11,6 +11,7 @@ from lanraragi_api.error import (
     APIRequestError,
     APIResponseDecodeError,
 )
+from lanraragi_api.util.http import merge_headers, merge_params, normalize_params
 
 T = TypeVar("T", bound=BaseModel)
 R = TypeVar(name="R", bound=OperationResponse)
@@ -84,61 +85,6 @@ class BaseAPICall:
                 base64_key = base64.b64encode(self.key.encode("utf-8")).decode("utf-8")
                 self.default_headers["Authorization"] = f"Bearer {base64_key}"
 
-    def build_headers(self, headers: dict[str, Any] | None = None):
-        """Merge the headers of a single request into the default headers.
-
-        Headers of the request win over default headers of the same name, so a
-        caller can override the authorization header for one call.
-
-        Args:
-            headers: Headers of the request. Defaults to None, which sends the
-                default headers only.
-
-        Returns:
-            dict: Headers to send, defaults included.
-        """
-        if headers is None:
-            headers = {}
-        merged = dict(headers)
-        for k in self.default_headers:
-            if k in merged:
-                continue
-            merged[k] = self.default_headers[k]
-        return merged
-
-    def build_params(self, params: dict[str, Any] | None = None):
-        """Merge the query parameters of a single request into the defaults.
-
-        Parameters of the request win over default parameters of the same name.
-
-        Args:
-            params: Query parameters of the request. Defaults to None, which
-                sends the default parameters only.
-
-        Returns:
-            dict: Query parameters to send, defaults included.
-        """
-        if params is None:
-            params = {}
-        merged = dict(params)
-        for k in self.default_params:
-            if k in merged:
-                continue
-            merged[k] = self.default_params[k]
-        return self._normalize_params(merged)
-
-    def _normalize_params(self, params: dict[str, Any]):
-        new_params: dict[str, Any] = {}
-        for k, v in params.items():
-            if v is None:
-                continue
-            if isinstance(v, bool):
-                # requests won't encoding bool value to lowercase string
-                v = "true" if v else "false"
-            new_params[k] = v
-
-        return new_params
-
     def _to_url(self, path: str) -> str:
         """Build the absolute URL of a request from its path.
 
@@ -198,8 +144,8 @@ class BaseAPICall:
             resp = requests.request(
                 method=method.upper(),
                 url=url,
-                params=self.build_params(params),
-                headers=self.build_headers(headers),
+                params=normalize_params(merge_params(self.default_params, params)),
+                headers=merge_headers(self.default_headers, headers),
                 timeout=self.timeout if timeout is None else timeout,
                 **kwargs,
             )
