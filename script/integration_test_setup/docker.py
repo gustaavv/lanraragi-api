@@ -1,11 +1,21 @@
 import json
 import subprocess
 import time
+from collections.abc import Sequence
 
 
 def restart(container_name: str):
     _ = subprocess.run(
         ["docker", "restart", container_name],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+
+def exec(container_name: str, argv: Sequence[str]):
+    _ = subprocess.run(
+        ["docker", "exec", container_name, *argv],
         capture_output=True,
         text=True,
         check=True,

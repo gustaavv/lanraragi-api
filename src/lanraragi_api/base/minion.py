@@ -49,13 +49,13 @@ class FullJobStatus(BaseModel):
         worker: ID of the worker that ran the job.
     """
 
-    args: list[str] = Field(default_factory=list)
+    args: list[Any] = Field(default_factory=list)
     attempts: str = Field(...)
     children: list[Any] = Field(default_factory=list)
     created: str = Field(...)
     delayed: str = Field(...)
     expires: str | None = Field(default=None)
-    finished: str = Field(...)
+    finished: str | None = Field(default=None)
     id: str = Field(...)
     lax: int = Field(default=0)
     notes: dict[Any, Any] = Field(default_factory=dict)

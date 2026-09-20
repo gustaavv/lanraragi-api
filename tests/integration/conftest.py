@@ -3,7 +3,7 @@ import pytest
 from lanraragi_api import LANraragiAPI
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def api() -> LANraragiAPI:
     # TODO: see script/integration_test_setup/config_lrr.py#set_custom_config
     apikey = "123456"

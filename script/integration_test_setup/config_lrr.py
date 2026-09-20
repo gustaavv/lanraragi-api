@@ -28,7 +28,7 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from script.integration_test_setup.docker import restart, wait_for_healthy
+from script.integration_test_setup.docker import exec, restart, wait_for_healthy
 
 # endpoints to try (login & config)
 LOGIN_ENDPOINTS = ["login"]
@@ -320,6 +320,7 @@ if __name__ == "__main__":
     wait_for_healthy(args.lrr_container_name, timeout=180)
     print("[+] pre main: lrr container is healthy")
     main(args)
+    exec(args.lrr_container_name, ["chmod", "777", "content"])
     restart(args.lrr_container_name)
     print("[+] post main: lrr container restarted")
     wait_for_healthy(args.lrr_container_name, timeout=180)

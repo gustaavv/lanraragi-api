@@ -1,3 +1,4 @@
+import os
 from os.path import isfile
 from typing import Any, cast
 
@@ -568,7 +569,7 @@ class ArchiveAPI(BaseAPICall):
 
     def upload_archive(
         self,
-        archive_path: str,
+        archive: str | tuple[str, bytes],
         title: str | None = None,
         tags: str | None = None,
         summary: str | None = None,
@@ -582,7 +583,8 @@ class ArchiveAPI(BaseAPICall):
         upload if the server-side checksum does not match.
 
         Args:
-            archive_path: Path of the archive file to upload.
+            archive: str type for path of the archive file to upload, or a tuple
+                made up of a filename and the file content in bytes.
             title: Title of the Archive. Defaults to None.
             tags: Set of tags you want to insert in the database alongside the
                 archive. Defaults to None.
@@ -597,7 +599,7 @@ class ArchiveAPI(BaseAPICall):
                 uploaded Archive in the extra ``id`` field.
 
         Raises:
-            FileNotFoundError: If ``archive_path`` does not point to a file.
+            FileNotFoundError: If ``archive``  points to an no-existing file.
             APIResponseDecodeError: If the response body is not valid JSON, or
                 does not match ``OperationResponse``.
             APIOperationError: If the operation failed and raising is enabled.
@@ -610,31 +612,35 @@ class ArchiveAPI(BaseAPICall):
             the operation result, with ``success`` set to 0, instead of
             raising.
         """
-        # deal with windows path separator
-        archive_path = archive_path.replace("\\", "/")
 
-        if not isfile(archive_path):
-            raise FileNotFoundError(f"File {archive_path} not found")
+        if isinstance(archive, str):
+            if not isfile(archive):
+                raise FileNotFoundError(f"File {archive} not found")
+            filename = os.path.basename(archive)
+            with open(archive, "rb") as f:
+                file_content = f.read()
+        else:
+            filename = archive[0]
+            file_content = archive[1]
 
-        with open(archive_path, "rb") as archive_file:
-            return self.request_operation(
-                "PUT",
-                "/api/archives/upload",
-                files={
-                    "file": (
-                        archive_path.split("/")[-1],
-                        archive_file,
-                        "application/octet-stream",
-                    )
-                },
-                data={
-                    "title": title,
-                    "tags": tags,
-                    "summary": summary,
-                    "category_id": category_id,
-                    "file_checksum": file_checksum,
-                },
-            )
+        return self.request_operation(
+            "PUT",
+            "/api/archives/upload",
+            files={
+                "file": (
+                    filename,
+                    file_content,
+                    "application/octet-stream",
+                )
+            },
+            data={
+                "title": title,
+                "tags": tags,
+                "summary": summary,
+                "category_id": category_id,
+                "file_checksum": file_checksum,
+            },
+        )
 
     def update_thumbnail(self, id: str, page: int = 1) -> OperationResponse:
         """Update the cover thumbnail for the given Archive.

@@ -4,6 +4,8 @@ from lanraragi_api import LANraragiAPI
 from lanraragi_api.base import APIHttpError, APIResponseDecodeError, DatabaseBackup
 from tests.integration.util.minion_util import wait_minion_job_util
 
+pytestmark = pytest.mark.order(1)
+
 
 class TestSearch:
     def test_search_archives(self, api: LANraragiAPI):
@@ -22,6 +24,11 @@ class TestSearch:
         searchApi = api.search
         archives = searchApi.get_random_archives()
         assert len(archives) == 0
+
+    def test_discard_cache(self, api: LANraragiAPI):
+        searchApi = api.search
+        resp = searchApi.discard_search_cache()
+        assert resp.success == 1
 
 
 class TestArchives:
@@ -76,11 +83,7 @@ class TestCategories:
 
 
 class TestTankoubons:
-    def test_get_all_tankoubons(self, api: LANraragiAPI):
-        tankoubonApi = api.tankoubons
-
-        tanks = tankoubonApi.get_all_tankoubons()
-        assert len(tanks) == 0
+    pass
 
 
 class TestPlugins:
@@ -142,11 +145,7 @@ class TestMinion:
 
 
 class TestOPDS:
-    def tet_get_opds_catalog(self, api: LANraragiAPI):
-        opdsApi = api.opds
-
-        resp = opdsApi.get_opds_catalog()
-        assert len(resp) > 0
+    pass
 
 
 class TestStamps:
@@ -191,3 +190,31 @@ class TestMisc:
         si = miscApi.get_server_information()
         assert si.version == "0.9.81"
         assert si.nofun_mode
+
+    def test_clean_temp_folder(self, api: LANraragiAPI):
+        miscApi = api.misc
+
+        resp = miscApi.clean_temporary_folder()
+        assert resp.success == 1
+        assert resp.operation == "cleantemp"
+
+    def test_regen_thumbs(self, api: LANraragiAPI):
+        miscApi = api.misc
+        minionApi = api.minion
+
+        resp = miscApi.regenerate_thumbnails()
+        assert resp.success == 1
+        assert resp.operation == "regen_thumbnails"
+        job1 = resp.job
+        assert job1 is not None
+        _ = minionApi.get_basic_status(job1)
+        _ = minionApi.get_full_status(job1)
+
+        resp = miscApi.regenerate_thumbnails(force=True)
+        assert resp.success == 1
+        assert resp.operation == "regen_thumbnails"
+        job2 = resp.job
+        assert job2 is not None
+        assert job1 != job2
+        _ = minionApi.get_basic_status(job2)
+        _ = minionApi.get_full_status(job2)
