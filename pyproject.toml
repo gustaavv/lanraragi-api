@@ -42,6 +42,9 @@ addopts = [
 ]
 tmp_path_retention_policy = "none"
 
+[tool.coverage.report]
+skip_covered = true
+
 [tool.basedpyright]
 typeCheckingMode = "recommended"
 include = [
