@@ -77,7 +77,11 @@ jobs:
           retention-days: 7
 
       - name: Generate combined coverage report
-        run: make test.coverage.combined
+        run: |
+          make test.coverage.combined
+          echo -e "## Total Test Coverage\n\n" >> $GITHUB_STEP_SUMMARY
+          cat coverage.combined.md >> $GITHUB_STEP_SUMMARY
+          echo -e "\n\n" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload combined coverage report
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'

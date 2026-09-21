@@ -77,6 +77,7 @@ $(COVERAGE_COMBINED_DATA): $(COVERAGE_UNIT_DATA) $(COVERAGE_INTEGRATION_DATA)
 	@echo "Combine coverage data"
 	@uv run coverage combine --keep --data-file=$@ $(COVERAGE_UNIT_DATA) $(COVERAGE_INTEGRATION_DATA)
 	@uv run coverage report --data-file=$@
+	@uv run coverage report --data-file=$@ --format=markdown > coverage.combined.md
 
 .PHONY: test.coverage.combined
 test.coverage.combined: $(COVERAGE_COMBINED_DATA) ## Combine both suites into a third coverage report
