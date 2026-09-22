@@ -41,100 +41,52 @@ class ArchiveMetadata(BaseModel):
     tags: str = Field(...)
     title: str = Field(...)
 
-    def __tags_to_dict(self) -> dict[str, list[str]]:
-        """Convert the ``tags`` string into a mapping of keys to values.
 
-        The string is split on commas. Tags written as ``key:value`` are
-        grouped under ``key``, allowing duplicate keys, while bare tags are
-        grouped under the ``ONLY_VALUES`` key.
+class ArchiveTags:
+    """Offer utility methods to operate ``ArchiveMetadata.tags``"""
 
-        Returns:
-            dict[str, list[str]]: One entry per tag key, holding its values in
-                order of appearance.
+    def __init__(self, tags: str):
+        self._tags: str = tags
+
+    @property
+    def tags(self):
+        """Get the ``tags`` string represented by this class"""
+        return self._tags
+
+    def get_tag_list(self) -> list[str]:
+        """Get a list of tags"""
+        tags = [t.strip() for t in self._tags.split(",")]
+        tags = [t for t in tags if t != ""]
+        return tags
+
+    def set_tag(self, tag_list: list[str]):
+        """Set the inner ``tags`` by a list of tags. Note that there will be
+        a deduplication first.
         """
-        tags: list[str] = self.tags.split(",")
-        ans: dict[str, list[str]] = {}
-        for t in tags:
-            if t == "":
-                continue
-            t = t.strip()
-            if ":" in t:
-                kv = t.split(":")
-                k = kv[0]
-                v = kv[1]
-                if k not in ans:
-                    ans[k] = []
-                ans[k].append(v)
-            else:
-                k = ARCHIVE_TAG_VALUES_SET
-                if k not in ans:
-                    ans[k] = []
-                ans[k].append(t)
-        return ans
-
-    def __dict_to_tags(self, json: dict[str, list[str]]):
-        """Write a mapping of tag keys to values back into ``tags``.
-
-        Keys other than ``ONLY_VALUES`` are written as ``key:value`` pairs,
-        while values of ``ONLY_VALUES`` are written as bare tags, all joined
-        with commas.
-
-        Args:
-            json: Mapping of tag keys to their values, in the shape returned
-                by ``__tags_to_dict``.
-
-        Note:
-            The function will modify the object: ``self.tags`` is replaced in
-            place.
-        """
-        tags = ""
-        modified: bool = False
-        for k, values in json.items():
-            for v in values:
-                modified = True
-                if k == ARCHIVE_TAG_VALUES_SET:
-                    tags += f"{v},"
-                else:
-                    tags += f"{k}:{v},"
-        if modified:
-            tags = tags[:-1]
-        self.tags = tags
+        # deduplicate first
+        tag_list = list(dict.fromkeys(tag_list))
+        self._tags = ",".join(tag_list)
 
     def get_artists(self) -> list[str]:
-        """Return the values of the ``artist`` tag.
-
-        Returns:
-            list[str]: Artist names found in ``tags``, in order of appearance.
-        """
-        return self.__tags_to_dict()["artist"]
+        """Get all artists in a list from tags prefixed with ``artist:``."""
+        tag_list = self.get_tag_list()
+        return [t[len("artist:") :] for t in tag_list if t.startswith("artist:")]
 
     def set_artists(self, artists: list[str]):
-        """Replace the ``artist`` tag with the given values.
+        """Set/Overwrite existing artists.
 
-        The ``tags`` string of the model is modified in place, and the other
-        tag keys are kept.
+        Consider using ``append_artists`` method if you want to add some new
+        artists.
 
-        Args:
-            artists: Artist names to store in the ``artist`` tag.
         """
-        json = self.__tags_to_dict()
-        json["artist"] = artists
-        self.__dict_to_tags(json)
+        tag_list = self.get_tag_list()
+        tag_list = [t for t in tag_list if not t.startswith("artist:")]
+        self.set_tag(tag_list)
 
-    def remove_artists(self):
-        """Remove the ``artist`` tag.
+        self.append_artists(artists)
 
-        The ``tags`` string of the model is modified in place, and the other
-        tag keys are kept.
-        """
-        json = self.__tags_to_dict()
-        json["artist"] = []
-        self.__dict_to_tags(json)
-
-    def has_artists(self) -> bool:
-        """Return whether the archive carries an ``artist`` tag.
-
-        Returns:
-            bool: True if the ``artist`` key appears in ``tags``.
-        """
-        return "artist" in self.tags
+    def append_artists(self, artists: list[str]):
+        """Add some new artists to the existing ones."""
+        tag_list = self.get_tag_list()
+        tag_list += [f"artist:{a}" for a in artists]
+        self.set_tag(tag_list)

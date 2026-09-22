@@ -4,7 +4,7 @@ from os.path import join
 
 from lanraragi_api import LANraragiAPI
 from lanraragi_api.enhanced.server_side import compute_id, is_archive
-from lanraragi_api.entity.archive import ArchiveMetadata
+from lanraragi_api.entity.archive import ArchiveMetadata, ArchiveTags
 
 
 def subfolders_to_artists(api: LANraragiAPI, dirname: str):
@@ -55,12 +55,15 @@ def subfolders_to_artists(api: LANraragiAPI, dirname: str):
             else:
                 a = map[f2][0]
 
-            if a.has_artists():
+            at = ArchiveTags(a.tags)
+
+            if len(at.get_artists()) > 0:
                 skip_count += 1
                 continue
             _, subfolder = os.path.split(root)
             update_count += 1
-            a.set_artists([subfolder])
+            at.set_artists([subfolder])
+            a.tags = at.tags
             _ = api.archives.update_archive_metadata(a.arcid, a)
     print(f"archives skipped count: {skip_count} , updated count:  {update_count}")
 
