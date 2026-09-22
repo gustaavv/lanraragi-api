@@ -416,7 +416,7 @@ wheels = [
 
 [[package]]
 name = "lanraragi-api"
-version = "0.9.81.1"
+version = "0.9.81.2"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
