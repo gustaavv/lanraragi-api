@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 import pytest
@@ -16,7 +17,7 @@ def api() -> LANraragiAPI:
     return api
 
 
-def integration_test_setup():
+def integration_test_setup(content_dir: str):
     _ = subprocess.run(
         [
             "docker",
@@ -29,6 +30,7 @@ def integration_test_setup():
         ],
         text=True,
         check=True,
+        env=os.environ | {"LRR_TEST_CONTENT_FOLDER": content_dir},
     )
     run(
         ConfigLRRArgs(
@@ -37,7 +39,7 @@ def integration_test_setup():
     )
 
 
-def integration_test_teardown():
+def integration_test_teardown(content_dir: str):
     _ = subprocess.run(
         [
             "docker",
@@ -49,4 +51,5 @@ def integration_test_teardown():
         ],
         text=True,
         check=True,
+        env=os.environ | {"LRR_TEST_CONTENT_FOLDER": content_dir},
     )

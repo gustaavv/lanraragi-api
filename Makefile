@@ -59,13 +59,13 @@ test: test.unit ## Short for test.unit target
 
 TEST_UNIT_TARGET ?= tests/unit
 .PHONY: test.unit
-test.unit: ## Run unit test. Use PYTEST_OPTS for additional options
+test.unit: ## Run unit test. Use PYTEST_OPTS for additional options. Use TEST_UNIT_TARGET to select some tests
 	@echo "Run unit test"
 	@COVERAGE_FILE=$(COVERAGE_UNIT_DATA) uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/unit $(TEST_UNIT_TARGET)
 
 TEST_INTEGRATION_TARGET ?= tests/integration
 .PHONY: test.integration
-test.integration: ## Run integration test. Use PYTEST_OPTS for additional options
+test.integration: ## Run integration test. Use PYTEST_OPTS for additional options. Use TEST_INTEGRATION_TARGET to select some tests
 	@echo "Run integration test"
 	@$(MAKE) tools.check TOOL=docker
 	@COVERAGE_FILE=$(COVERAGE_INTEGRATION_DATA) uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/integration $(TEST_INTEGRATION_TARGET)

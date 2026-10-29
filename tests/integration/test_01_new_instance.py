@@ -9,13 +9,16 @@ pytestmark = pytest.mark.order(1)
 
 
 @pytest.fixture(scope="module", autouse=True)
-def module_setup_and_cleanup():
-    integration_test_teardown()
-    integration_test_setup()
+def module_setup_and_cleanup(tmp_path_factory: pytest.TempPathFactory):
+    content_dir = tmp_path_factory.mktemp("test_01") / "content"
+    content_dir.mkdir()
+    content_dir = str(content_dir)
+    integration_test_teardown(content_dir)
+    integration_test_setup(content_dir)
 
     yield
 
-    integration_test_teardown()
+    integration_test_teardown(content_dir)
 
 
 class TestSearch:
