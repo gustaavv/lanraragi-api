@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set short commit hash
         id: commit
@@ -54,7 +54,7 @@ jobs:
 
       - name: Upload unit coverage report
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-unit-${{ steps.commit.outputs.short_sha }}
           path: docs/build/html/coverage/unit
@@ -69,7 +69,7 @@ jobs:
 
       - name: Upload integration coverage report
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-integration-${{ steps.commit.outputs.short_sha }}
           path: docs/build/html/coverage/integration
@@ -85,7 +85,7 @@ jobs:
 
       - name: Upload combined coverage report
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-combined-${{ steps.commit.outputs.short_sha }}
           path: docs/build/html/coverage/combined
@@ -97,7 +97,7 @@ jobs:
 
       - name: Upload coverage badge
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-badge-${{ steps.commit.outputs.short_sha }}
           path: docs/build/html/coverage-badge.svg
