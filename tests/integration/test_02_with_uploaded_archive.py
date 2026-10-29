@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from lanraragi_api import APIHttpError, APIResponseDecodeError, LANraragiAPI
 from lanraragi_api.entity.database import DatabaseBackup
 from lanraragi_api.entity.stamp import StampsData
+from tests.integration.conftest import integration_test_setup, integration_test_teardown
 from tests.integration.util.archive_util import (
     ArchiveRawContent,
     gen_test_archive,
@@ -21,6 +22,16 @@ from tests.integration.util.archive_util import (
 from tests.integration.util.minion_util import wait_minion_job_util
 
 pytestmark = pytest.mark.order(2)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def module_setup_and_cleanup():
+    integration_test_teardown()
+    integration_test_setup()
+
+    yield
+
+    integration_test_teardown()
 
 
 class SharedState(BaseModel):
@@ -426,8 +437,12 @@ class TestCategories:
 
         categoryApi = api.categories
 
+        # delete the default category
         cats = categoryApi.get_all_categories()
-        assert len(cats) == 0
+        assert len(cats) == 1
+        assert cats[0].name == "🔖 Favorites"
+        resp = categoryApi.delete_category(cats[0].id)
+        assert resp.success == 1
 
         def create_and_assert(name: str) -> str:
             resp = categoryApi.create_category(name)

@@ -2,9 +2,20 @@ import pytest
 
 from lanraragi_api import APIHttpError, APIResponseDecodeError, LANraragiAPI
 from lanraragi_api.entity.database import DatabaseBackup
+from tests.integration.conftest import integration_test_setup, integration_test_teardown
 from tests.integration.util.minion_util import wait_minion_job_util
 
 pytestmark = pytest.mark.order(1)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def module_setup_and_cleanup():
+    integration_test_teardown()
+    integration_test_setup()
+
+    yield
+
+    integration_test_teardown()
 
 
 class TestSearch:

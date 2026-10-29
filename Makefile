@@ -2,6 +2,8 @@ SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 MAKEFLAGS += --no-print-directory
 
+export PYTHONUTF8 := 1
+
 DOCS_SOURCE_DIR := docs/source
 DOCS_TARGET_DIR := docs/build
 # Coverage reports go straight into the docs output so that they ship in the same
@@ -55,20 +57,18 @@ lint-fix: ## Lint code and automatically fix issues using ruff
 .PHONY: test
 test: test.unit ## Short for test.unit target
 
+TEST_UNIT_TARGET ?= tests/unit
 .PHONY: test.unit
 test.unit: ## Run unit test. Use PYTEST_OPTS for additional options
 	@echo "Run unit test"
-	@COVERAGE_FILE=$(COVERAGE_UNIT_DATA) uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/unit tests/unit
+	@COVERAGE_FILE=$(COVERAGE_UNIT_DATA) uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/unit $(TEST_UNIT_TARGET)
 
+TEST_INTEGRATION_TARGET ?= tests/integration
 .PHONY: test.integration
 test.integration: ## Run integration test. Use PYTEST_OPTS for additional options
 	@echo "Run integration test"
 	@$(MAKE) tools.check TOOL=docker
-	@docker compose -f script/integration_test_setup/compose.yml down -v
-	@docker compose -f script/integration_test_setup/compose.yml up -d --quiet-pull
-	@uv run script/integration_test_setup/config_lrr.py --base-url http://localhost:33333 --lrr-container-name lrr_api_test_lrr
-	@COVERAGE_FILE=$(COVERAGE_INTEGRATION_DATA) uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/integration tests/integration
-	@docker compose -f script/integration_test_setup/compose.yml down -v
+	@COVERAGE_FILE=$(COVERAGE_INTEGRATION_DATA) uv run pytest $(PYTEST_OPTS) --cov-report=html:$(DOCS_COVERAGE_DIR)/integration $(TEST_INTEGRATION_TARGET)
 
 # There is deliberately no rule creating the data files: if a suite has not been run
 # yet, make aborts instead of building a partial report. --keep is load-bearing, as

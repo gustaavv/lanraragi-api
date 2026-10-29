@@ -12,6 +12,7 @@ What it does:
 """
 
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -233,7 +234,15 @@ def try_post_config(
     return None
 
 
-def parse_args():
+@dataclass
+class ConfigLRRArgs:
+    base_url: str
+    lrr_container_name: str
+    verbose: bool = False
+
+
+# deprecated if not used from command line
+def parse_args() -> ConfigLRRArgs:
     parser = argparse.ArgumentParser(
         description="Apply custom config to LANraragi via web UI endpoints."
     )
@@ -249,10 +258,10 @@ def parse_args():
         help="Name of the running LANraragi container",
     )
     args = parser.parse_args()
-    return args
+    return ConfigLRRArgs(**vars(args))
 
 
-def main(args):
+def do_config(args: ConfigLRRArgs):
     s = requests.Session()
     s.headers.update({"User-Agent": USER_AGENT})
 
@@ -315,11 +324,11 @@ def main(args):
         sys.exit(0)
 
 
-if __name__ == "__main__":
-    args = parse_args()
+def run(args: ConfigLRRArgs):
+    # args = parse_args()
     wait_for_healthy(args.lrr_container_name, timeout=180)
     print("[+] pre main: lrr container is healthy")
-    main(args)
+    do_config(args)
     exec(args.lrr_container_name, ["chmod", "777", "content"])
     restart(args.lrr_container_name)
     print("[+] post main: lrr container restarted")
