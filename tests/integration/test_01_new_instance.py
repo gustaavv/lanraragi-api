@@ -202,7 +202,7 @@ class TestMisc:
         miscApi = api.misc
 
         si = miscApi.get_server_information()
-        assert si.version == "0.9.81"
+        assert si.version == "0.9.82"
         assert si.nofun_mode
 
     def test_clean_temp_folder(self, api: LANraragiAPI):
